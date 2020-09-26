@@ -3,6 +3,7 @@ black
 bump2version
 flake8
 flit
+gitchangelog
 interrogate
 jupyter
 jupytext
