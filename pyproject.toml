@@ -21,7 +21,7 @@ requires = [
 ]
 requires-python=">=3.3"
 description-file = "README.md"
-keywords=["diagnostics", "visualization", "data science", "matplotlib"]
+keywords= "diagnostics,visualization,data-science,matplotlib"
 classifiers=[
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering",
