@@ -4,13 +4,16 @@ bump2version
 flake8
 flit
 gitchangelog
+graphviz
 interrogate
 jupyter
 jupytext
 pandas
 pip-tools
 pre-commit
+pydeps
 pydocstyle
+pylogit
 pyscaffold-interactive
 pytest
 pytest-cov
@@ -19,5 +22,6 @@ reorder-python-imports
 scikit-learn
 seaborn
 statsmodels
+tqdm
 xenon
 watermark
