@@ -20,8 +20,13 @@ The name is also a play on the phrases "check the research of scientists" and "c
 
 ## To-Do:
    - Add usage examples
+   - Add tests
+   - Set up tox
+   - Set up pre-commit
+   - Set up continuous integration
    - Refactor to remove pandas dependency
    - Architecture overhaul to go from prototype to v1.
+   - Add package to conda and conda-forge
 
 ## Development installation
 
