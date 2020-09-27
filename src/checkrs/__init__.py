@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Visualization module for PyLogit.
+Tools for simulation-based model checking and diagnostics.
 """
 from __future__ import absolute_import
 
