@@ -19,4 +19,4 @@ from .utils import (
     simulate_choice_vector,
 )
 
-__version__ = "0.0.0"
+__version__ = "0.1.0"
