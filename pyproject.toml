@@ -12,7 +12,6 @@ requires = [
     "matplotlib",
     "numpy",
     "pandas",
-    "pkg_resources",
     "scipy",
     "seaborn",
     "sklearn",
