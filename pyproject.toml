@@ -8,14 +8,13 @@ author = "Timothy Brathwaite"
 author-email = "timothyb0912@gmail.com"
 home-page = "https://github.com/timothyb0912/checkrs"
 requires = [
+    "future",
     "matplotlib",
     "numpy",
     "pandas",
-    "past",
-    "pkg_resources",
     "scipy",
     "seaborn",
-    "sklearn",
+    "scikit-learn",
     "statsmodels",
     "tqdm",
 ]
