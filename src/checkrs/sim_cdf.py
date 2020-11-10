@@ -2,13 +2,18 @@
 """
 Functions for plotting simulated vs observed cumulative distribution functions.
 """
+import os
 from __future__ import absolute_import
+from typing import Dict, Iterable
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import plotnine as p9
 import seaborn as sbn
 
+import .base as base
 from .plot_utils import (
     _choice_evaluator,
     _label_despine_save_and_show_plot,
@@ -263,3 +268,77 @@ def plot_simulated_cdfs(
         dpi=dpi,
     )
     return None
+
+
+@attr.s
+class ViewSimCDF(base.View):
+    _data: pd.DataFrame = attr.ib()
+    _url: str = attr.ib()
+    _metadata: Dict[str, str] = attr.ib()
+
+    def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
+        """
+        Instantiates the simulated CDF chart from the given `ChartData`.
+        """
+        return cls(data=data.data, url=data.url, metadata=data.metadata)
+
+    def draw(self, backend: str) -> base.ViewObject:
+        """
+        Renders the view of the data using a specified backend.
+        """
+        if backend == "plotnine":
+            return self.draw_plotnine().draw()
+        else:
+            raise ValueError("`backend` MUST == 'plotnine'.")
+
+    def draw_plotnine(self) -> p9.ggplot:
+        # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
+        # Hopefully its the observed line
+        sim_ids = np.sort(
+            self._data[self._metadata["id_col_sim"]].unique()
+        ).tolist()[::-1]
+
+        # Add the data to the plot
+        chart = p9.ggplot()
+        for idx in tqdm(sim_ids[1:]):
+            chart = chart + self.create_single_cdf_line(idx)
+
+        # Add formatting to the plot
+        chart = (
+            chart
+            + p9.xlab("Order Value")
+            + p9.ylab("Cumulative Distribution Function")
+            + p9.scale_color_manual(
+                ("#a6bddb", "#045a8d"),
+                labels=p9.utils.waiver()
+            )
+            + p9.scale_alpha_manual(
+                (0.5, 1),
+                labels=p9.utils.waiver()
+            )
+        )
+        return chart
+
+    def create_single_cdf_line(self, id_sim:int) -> p9.ggplot:
+        id_col_sim = self._metadata["id_col_sim"]
+        observed_col = self._metadata["observed"]
+        outcome_col = self._metadata["y"]
+        return p9.stat_ecdf(
+                mapping=p9.aes(
+                    x=outcome_col, color=observed_col, alpha=observed_col
+                ),
+                data=self._data.loc[self._data[id_col_sim] == id_sim],
+            )
+
+    def save(self, filename: str) -> bool:
+        """
+        Saves the view of the data using the appropriate backend for the
+        filename's extension. Returns True if saving succeeded.
+        """
+        ext = os.path.splitext(filename)[1]
+        if ext in base.EXTENSIONS_PLOTNINE:
+            chart = self.draw_plotnine()
+            chart.save(filename)
+        else:
+            raise ValueError(f"Format MUST be in {base.EXTENSIONS_PLOTNINE}")
+        return True
