@@ -9,7 +9,6 @@ from checkrs.base import ChartData, View, ViewObject
 from checkrs.sim_cdf import ViewSimCDF
 
 
-
 class ProtocolTests(unittest.TestCase):
     """
     Testing basic properties of a Checkrs.Chart instance.
