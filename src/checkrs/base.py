@@ -8,6 +8,10 @@ from matplotlib.figure import Figure
 from altair import Chart
 
 
+EXTENSIONS_PLOTNINE = set((".png", ".pdf"))
+EXTENSIONS_ALTAIR = set((".html", ".json"))
+EXTENSIONS = EXTENSIONS_PLOTNINE | EXTENSIONS_ALTAIR
+
 ViewObject = Union[Figure, Chart]
 
 
@@ -24,7 +28,7 @@ class View(Protocol):
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
 
-    def from_chart_data(self, data: ChartData) -> "View":
+    def from_chart_data(cls, data: ChartData) -> "View":
         """
         Instantiates the view from the given `ChartData`.
         """
