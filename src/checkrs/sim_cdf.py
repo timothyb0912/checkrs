@@ -2,10 +2,12 @@
 """
 Functions for plotting simulated vs observed cumulative distribution functions.
 """
-import os
 from __future__ import absolute_import
+
+import os
 from typing import Dict, Iterable
 
+import attr
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,14 +15,14 @@ import pandas as pd
 import plotnine as p9
 import seaborn as sbn
 
-import .base as base
-from .plot_utils import (
+import checkrs.base as base
+from checkrs.plot_utils import (
     _choice_evaluator,
     _label_despine_save_and_show_plot,
     _plot_single_cdf_on_axis,
     _thin_rows,
 )
-from .utils import progress
+from checkrs.utils import progress
 
 try:
     # in Python 3 range returns an iterator instead of list
@@ -276,6 +278,7 @@ class ViewSimCDF(base.View):
     _url: str = attr.ib()
     _metadata: Dict[str, str] = attr.ib()
 
+    @classmethod
     def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
         """
         Instantiates the simulated CDF chart from the given `ChartData`.
@@ -300,7 +303,7 @@ class ViewSimCDF(base.View):
 
         # Add the data to the plot
         chart = p9.ggplot()
-        for idx in tqdm(sim_ids[1:]):
+        for idx in progress(sim_ids[1:]):
             chart = chart + self.create_single_cdf_line(idx)
 
         # Add formatting to the plot
