@@ -10,7 +10,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from checkrs.base import ChartData, View, Figure, Chart
+from checkrs.base import ChartData, View, Figure, TopLevelMixin
 from checkrs.sim_cdf import ViewSimCDF
 
 
@@ -22,14 +22,14 @@ class ProtocolTests(unittest.TestCase):
     temp_dir = "_tmp/"
     charts_all: List[View] = [ViewSimCDF]
     backends: List[str] = [
-        # "altair",
+        "altair",
         "plotnine",
     ]
     extensions: List[str] = [
         ".png",
         ".pdf",
-        # ".json",
-        # ".html",
+        ".json",
+        ".html",
     ]
 
     @property
@@ -58,7 +58,7 @@ class ProtocolTests(unittest.TestCase):
         for backend, view in product(self.backends, self.charts_all):
             chart = view.from_chart_data(data=self.data)
             manipulable_object = chart.draw(backend=backend)
-            self.assertIsInstance(manipulable_object, (Figure, Chart))
+            self.assertIsInstance(manipulable_object, (Figure, TopLevelMixin))
 
     def test_save_functionality(self):
         """

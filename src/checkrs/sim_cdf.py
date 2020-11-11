@@ -5,8 +5,11 @@ Functions for plotting simulated vs observed cumulative distribution functions.
 from __future__ import absolute_import
 
 import os
-from typing import Dict, Iterable
+from typing import (
+    Dict, Iterable, List
+)
 
+import altair as alt
 import attr
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -291,20 +294,26 @@ class ViewSimCDF(base.View):
         """
         if backend == "plotnine":
             return self.draw_plotnine().draw()
+        elif backend == "altair":
+            return self.draw_altair()
         else:
             raise ValueError("`backend` MUST == 'plotnine'.")
 
-    def draw_plotnine(self) -> p9.ggplot:
+    def _get_sim_ids(self) -> List[int]:
         # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
         # Hopefully its the observed line
         sim_ids = np.sort(
             self._data[self._metadata["id_col_sim"]].unique()
         ).tolist()[::-1]
+        return sim_ids
+
+    def draw_plotnine(self) -> p9.ggplot:
+        sim_ids = self._get_sim_ids()
 
         # Add the data to the plot
         chart = p9.ggplot()
         for idx in progress(sim_ids[1:]):
-            chart = chart + self.create_single_cdf_line(idx)
+            chart = chart + self.create_single_cdf_line_plotnine(idx)
 
         # Add formatting to the plot
         chart = (
@@ -322,7 +331,7 @@ class ViewSimCDF(base.View):
         )
         return chart
 
-    def create_single_cdf_line(self, id_sim:int) -> p9.ggplot:
+    def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
         outcome_col = self._metadata["y"]
@@ -333,15 +342,52 @@ class ViewSimCDF(base.View):
                 data=self._data.loc[self._data[id_col_sim] == id_sim],
             )
 
+
+    def draw_altair(self) -> alt.TopLevelMixin:
+        sim_ids = self._get_sim_ids()
+        chart = self.create_single_cdf_line_altair(sim_ids[0])
+        for idx in progress(sim_ids[1:]):
+            chart += self.create_single_cdf_line_altair(idx)
+        return chart
+
+    def create_single_cdf_line_altair(self, id_sim: int) -> alt.TopLevelMixin:
+        current_data = self._url if self._url is not None else self._data
+        id_col_sim = self._metadata["id_col_sim"]
+        observed_col = self._metadata["observed"]
+        outcome_col = self._metadata["y"]
+        chart = (
+            alt.Chart(current_data)
+                .transform_filter(alt.datum[id_col_sim] == id_sim)
+                .transform_density(
+                    outcome_col,
+                    as_=[outcome_col, "density"],
+                    groupby=[observed_col],
+                    cumulative=True,
+                    steps=25,
+                )
+                .mark_line()
+                .encode(
+                    alt.X(outcome_col, type="quantitative"),
+                    alt.Y(
+                        "density:Q",
+                        title="Cumulative Distribution Function"
+                    ),
+                    color=alt.Color(observed_col, type="nominal")
+                )
+        )
+        return chart
+
     def save(self, filename: str) -> bool:
         """
         Saves the view of the data using the appropriate backend for the
         filename's extension. Returns True if saving succeeded.
         """
         ext = os.path.splitext(filename)[1]
+        if ext not in base.EXTENSIONS:
+            raise ValueError(f"Format MUST be in {base.EXTENSIONS_PLOTNINE}")
         if ext in base.EXTENSIONS_PLOTNINE:
             chart = self.draw_plotnine()
-            chart.save(filename)
-        else:
-            raise ValueError(f"Format MUST be in {base.EXTENSIONS_PLOTNINE}")
+        elif ext in base.EXTENSIONS_ALTAIR:
+            chart = self.draw_altair()
+        chart.save(filename)
         return True
