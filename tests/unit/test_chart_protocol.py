@@ -75,7 +75,8 @@ class ProtocolTests(unittest.TestCase):
                 full_path_current = filename + ext
                 # Ensure missing file, create the file, ensure existing file
                 self.assertFalse(os.path.exists(full_path_current))
-                chart.save(full_path_current)
+                result = chart.save(full_path_current)
+                self.assertIsInstance(result, bool)
                 self.assertTrue(os.path.exists(full_path_current))
         finally:
             # Clear up test plots even if failure happens
