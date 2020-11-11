@@ -123,7 +123,16 @@ class ChartAttributeTests(unittest.TestCase):
             filterings.add(current_filtering)
 
     def test_layers_use_unique_data_plotnine(self):
-        pass
+        sim_ids = set()
+        chart = self.chart_p9
+        id_col_sim = self.data.metadata["id_col_sim"]
+        for layer in chart.layers:
+            current_data = layer.data if layer.data is not None else chart.data
+            sim_ids_potential = current_data[id_col_sim].unique()
+            self.assertEqual(sim_ids_potential.size, 1)
+            sim_id_current = sim_ids_potential[0]
+            self.assertTrue(sim_id_current not in sim_ids)
+            sim_ids.add(sim_id_current)
 
     def test_layers_use_correct_axes_encodings_altair(self):
         pass
