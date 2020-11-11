@@ -1,11 +1,16 @@
 """
 This file tests the Chart protocol's contract.
 """
+import os
+import shutil
 import unittest
 from itertools import product
 from typing import List
 
-from checkrs.base import ChartData, View, ViewObject
+import numpy as np
+import pandas as pd
+
+from checkrs.base import ChartData, View, Figure, Chart
 from checkrs.sim_cdf import ViewSimCDF
 
 
@@ -16,11 +21,33 @@ class ProtocolTests(unittest.TestCase):
     """
     temp_dir = "_tmp/"
     charts_all: List[View] = [ViewSimCDF]
-    backends: List[str] = ["altair", "plotnine"]
+    backends: List[str] = [
+        # "altair",
+        "plotnine",
+    ]
+    extensions: List[str] = [
+        ".png",
+        ".pdf",
+        # ".json",
+        # ".html",
+    ]
 
     @property
     def data(self) -> ChartData:
-        raise NotImplementedError()
+        np.random.seed(324)
+        y_all = np.random.rand(100, 4)
+        dataframes = []
+        for i in range(1, y_all.shape[1]+1):
+            current_data = pd.DataFrame({"y": y_all[:, i-1]})
+            current_data["observed"] = True if i == 1 else False
+            current_data["id_col_sim"] = i
+            dataframes.append(current_data)
+        data = pd.concat(dataframes, ignore_index=True)
+
+        metadata = {
+            "y": "y", "observed": "observed", "id_col_sim": "id_col_sim"
+        }
+        return ChartData(data=data, url=None, metadata=metadata)
 
     def test_draw_signature(self):
         """
@@ -29,9 +56,9 @@ class ProtocolTests(unittest.TestCase):
         THEN we receive the appropriate matplotlib.Figure or an altair.Chart
         """
         for backend, view in product(self.backends, self.charts_all):
-            chart = view(self.data)
+            chart = view.from_chart_data(data=self.data)
             manipulable_object = chart.draw(backend=backend)
-            self.assertIsInstance(manipulable_object, ViewObject)
+            self.assertIsInstance(manipulable_object, (Figure, Chart))
 
     def test_save_functionality(self):
         """
@@ -42,15 +69,14 @@ class ProtocolTests(unittest.TestCase):
         if not os.path.isdir(self.temp_dir):
             os.mkdir(self.temp_dir)  # Make a directory to hold the test plots
         filename = os.path.join(self.temp_dir, "test_filename")
-        extensions = [".png", ".pdf", ".json", ".html"]
         try:
-            for ext, chart_class in product(extensions, CHARTS_ALL):
-                chart = chart_class(self.data)
+            for ext, view in product(self.extensions, self.charts_all):
+                chart = view.from_chart_data(data=self.data)
                 full_path_current = filename + ext
                 # Ensure missing file, create the file, ensure existing file
                 self.assertFalse(os.path.exists(full_path_current))
                 chart.save(full_path_current)
                 self.assertTrue(os.path.exists(full_path_current))
-        except:
-            os.rmdir(temp_dir)  # Clear up test plots even if failure happens
-            raise  # Re-raise last exception
+        finally:
+            # Clear up test plots even if failure happens
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
