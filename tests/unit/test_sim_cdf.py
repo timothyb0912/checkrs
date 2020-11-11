@@ -106,21 +106,21 @@ class ChartAttributeTests(unittest.TestCase):
             self.assertTrue(density_transforms[0]["cumulative"])
 
     def test_layers_use_unique_data_altair(self):
-        # filterings = set()
-        # chart_dict = self.chart_altair.to_dict()
-        # for layer in chart_dict["layer"]:
-        #     # Make sure each layer a unique filtering of the data
-        #     transforms = layer.get("transform", None)
-        #     current_filtering = tuple(
-        #         transform for transform in transforms
-        #         if "filter" in transform
-        #     )
-        #     current_filtering = (
-        #         current_filtering[0]["filter"] if len(current_filtering) > 0
-        #         else None
-        #     )
-        #     self.assertTrue(current_filtering not in filterings)
-        #     filterings.add(current_filtering)
+        filterings = set()
+        chart_dict = self.chart_altair.to_dict()
+        for layer in chart_dict["layer"]:
+            # Make sure each layer a unique filtering of the data
+            transforms = layer.get("transform", None)
+            current_filtering = tuple(
+                transform for transform in transforms
+                if "filter" in transform
+            )
+            current_filtering = (
+                current_filtering[0]["filter"] if len(current_filtering) > 0
+                else None
+            )
+            self.assertTrue(current_filtering not in filterings)
+            filterings.add(current_filtering)
 
     def test_layers_use_unique_data_plotnine(self):
         pass
