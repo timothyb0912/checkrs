@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - scipy
   - pandas
+  - plotnine
   - dask
   - ipython
   - tqdm
