@@ -8,6 +8,7 @@ from typing import List
 import altair as alt
 import numpy as np
 import pandas as pd
+import plotnine as p9
 
 from checkrs.base import ChartData, View
 from checkrs.sim_cdf import ViewSimCDF
@@ -75,3 +76,11 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
         num_simulations = self.data.data["id_col_sim"].unique().size
         self.assertEqual(len(chart.layers), num_simulations)
+
+    def test_layers_are_cdfs_plotnine(self):
+        """
+        Each layer of the visualization should be displaying a CDF.
+        """
+        chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
+        for layer in chart.layers:
+            self.assertIsInstance(layer.stat, p9.stat_ecdf)
