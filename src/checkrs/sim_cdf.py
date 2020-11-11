@@ -309,7 +309,7 @@ class ViewSimCDF(base.View):
         # Add formatting to the plot
         chart = (
             chart
-            + p9.xlab("Order Value")
+            + p9.xlab("x-axis")
             + p9.ylab("Cumulative Distribution Function")
             + p9.scale_color_manual(
                 ("#a6bddb", "#045a8d"),
