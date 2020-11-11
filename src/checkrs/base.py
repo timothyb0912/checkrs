@@ -9,14 +9,14 @@ from typing_extensions import Protocol
 import attr
 import pandas as pd
 from matplotlib.figure import Figure
-from altair import Chart
+from altair import TopLevelMixin
 
 
 EXTENSIONS_PLOTNINE = set((".png", ".pdf"))
 EXTENSIONS_ALTAIR = set((".html", ".json"))
 EXTENSIONS = EXTENSIONS_PLOTNINE | EXTENSIONS_ALTAIR
 
-ViewObject = Union[Figure, Chart]
+ViewObject = Union[Figure, TopLevelMixin]
 
 
 @attr.s
