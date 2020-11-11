@@ -72,6 +72,6 @@ class ChartAttributeTests(unittest.TestCase):
         We should have one layer per CDF and one CDF per unique value of
         "id_col_sim".
         """
-        chart = self.chart.from_chart_data(self.data).draw_plotnine()
+        chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
         num_simulations = self.data.data["id_col_sim"].unique().size
         self.assertEqual(len(chart.layers), num_simulations)
