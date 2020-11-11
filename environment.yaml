@@ -1,36 +1,11 @@
-name: checkrs
 channels:
   - defaults
   - conda-forge
   - pytorch
 dependencies:
-  - python>=3.6
+  - python==3.7.5
   - pip
-  - numpy
-  - scipy
-  - pandas
-  - plotnine
-  - dask
-  - ipython
-  - tqdm
-  - click
-  - matplotlib
-  - seaborn
-  - altair
-  - statsmodels
-  - scikit-learn
-  - pytorch
-  - pytest
+  # Above, list any packages that MUST be installed via conda
   - pip:
-     # add here only pip-packages that are not available in conda/conda-forge! E.g.:
-     - optuna
-  # for development only (could also be kept in a separate environment file)
-  - jupyterlab
-  - pytest
-  - pytest-cov
-  - tox
-  - pre_commit
-  - nbdime
-  - nbstripout
-  - sphinx
-  - recommonmark
+    # Install all pip-installable packages
+    - -r file:requirements.txt
