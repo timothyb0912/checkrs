@@ -50,12 +50,19 @@ class ChartAttributeTests(unittest.TestCase):
         }
         return ChartData(data=data, url=None, metadata=metadata)
 
+    @property
+    def chart_p9(self) -> p9.ggplot:
+        return self.chart.from_chart_data(self.data).draw(backend="plotnine")
+
+    @property
+    def chart_altair(self) -> alt.TopLevelMixin:
+        return self.chart.from_chart_data(self.data).draw(backend="altair")
+
     def test_is_layer_chart_altair(self):
         """
         Altair SimCDF plots should be layer charts! One layer per CDF.
         """
-        chart = self.chart.from_chart_data(self.data).draw(backend="altair")
-        chart_dict = chart.to_dict()
+        chart_dict = self.chart_altair.to_dict()
         self.assertTrue("layer" in chart_dict)
 
     def test_num_layers_altair(self):
@@ -63,8 +70,7 @@ class ChartAttributeTests(unittest.TestCase):
         We should have one layer per CDF and one CDF per unique value of
         "id_col_sim".
         """
-        chart = self.chart.from_chart_data(self.data).draw(backend="altair")
-        chart_dict = chart.to_dict()
+        chart_dict = self.chart_altair.to_dict()
         num_simulations = self.data.data["id_col_sim"].unique().size
         self.assertEqual(len(chart_dict["layer"]), num_simulations)
 
@@ -73,24 +79,21 @@ class ChartAttributeTests(unittest.TestCase):
         We should have one layer per CDF and one CDF per unique value of
         "id_col_sim".
         """
-        chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
         num_simulations = self.data.data["id_col_sim"].unique().size
-        self.assertEqual(len(chart.layers), num_simulations)
+        self.assertEqual(len(self.chart_p9.layers), num_simulations)
 
     def test_layers_are_cdfs_plotnine(self):
         """
         Each layer of the visualization should be displaying a CDF.
         """
-        chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
-        for layer in chart.layers:
+        for layer in self.chart_p9.layers:
             self.assertIsInstance(layer.stat, p9.stat_ecdf)
 
     def test_layers_are_cdfs_altair(self):
         """
-        Each layer of the visualization should be displaying a CDF.
+        Each layer of the visualization should display a CDF.
         """
-        chart = self.chart.from_chart_data(self.data).draw(backend="altair")
-        chart_dict = chart.to_dict()
+        chart_dict = self.chart_altair.to_dict()
         for layer in chart_dict["layer"]:
             # The layer should be a line
             self.assertEqual(layer["mark"], "line")
@@ -101,3 +104,29 @@ class ChartAttributeTests(unittest.TestCase):
             )
             self.assertTrue(len(density_transforms) == 1)
             self.assertTrue(density_transforms[0]["cumulative"])
+
+    def test_layers_use_unique_data_altair(self):
+        # filterings = set()
+        # chart_dict = self.chart_altair.to_dict()
+        # for layer in chart_dict["layer"]:
+        #     # Make sure each layer a unique filtering of the data
+        #     transforms = layer.get("transform", None)
+        #     current_filtering = tuple(
+        #         transform for transform in transforms
+        #         if "filter" in transform
+        #     )
+        #     current_filtering = (
+        #         current_filtering[0]["filter"] if len(current_filtering) > 0
+        #         else None
+        #     )
+        #     self.assertTrue(current_filtering not in filterings)
+        #     filterings.add(current_filtering)
+
+    def test_layers_use_unique_data_plotnine(self):
+        pass
+
+    def test_layers_use_correct_axes_encodings_altair(self):
+        pass
+
+    def test_layers_use_correct_axes_encodings_plotnine(self):
+        pass
