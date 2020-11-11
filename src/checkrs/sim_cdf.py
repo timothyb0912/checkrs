@@ -312,7 +312,7 @@ class ViewSimCDF(base.View):
 
         # Add the data to the plot
         chart = p9.ggplot()
-        for idx in progress(sim_ids[1:]):
+        for idx in progress(sim_ids):
             chart = chart + self.create_single_cdf_line_plotnine(idx)
 
         # Add formatting to the plot
