@@ -10,7 +10,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from checkrs.base import ChartData, View, Figure, TopLevelMixin
+from checkrs.base import ChartData, View, ggplot, TopLevelMixin
 from checkrs.sim_cdf import ViewSimCDF
 
 
@@ -58,7 +58,7 @@ class ProtocolTests(unittest.TestCase):
         for backend, view in product(self.backends, self.charts_all):
             chart = view.from_chart_data(data=self.data)
             manipulable_object = chart.draw(backend=backend)
-            self.assertIsInstance(manipulable_object, (Figure, TopLevelMixin))
+            self.assertIsInstance(manipulable_object, (ggplot, TopLevelMixin))
 
     def test_save_functionality(self):
         """

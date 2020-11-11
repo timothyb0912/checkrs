@@ -8,7 +8,7 @@ from typing_extensions import Protocol
 
 import attr
 import pandas as pd
-from matplotlib.figure import Figure
+from plotnine import ggplot
 from altair import TopLevelMixin
 
 
@@ -16,7 +16,7 @@ EXTENSIONS_PLOTNINE = set((".png", ".pdf"))
 EXTENSIONS_ALTAIR = set((".html", ".json"))
 EXTENSIONS = EXTENSIONS_PLOTNINE | EXTENSIONS_ALTAIR
 
-ViewObject = Union[Figure, TopLevelMixin]
+ViewObject = Union[ggplot, TopLevelMixin]
 
 
 @attr.s

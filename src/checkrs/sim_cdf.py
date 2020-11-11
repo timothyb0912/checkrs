@@ -293,7 +293,7 @@ class ViewSimCDF(base.View):
         Renders the view of the data using a specified backend.
         """
         if backend == "plotnine":
-            return self.draw_plotnine().draw()
+            return self.draw_plotnine()
         elif backend == "altair":
             return self.draw_altair()
         else:
