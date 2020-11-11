@@ -1,9 +1,13 @@
 """
 Basic objects that serve as templates for specialized functions and classes.
 """
-from typing import Dict, Optional, Protocol, Union
+from typing import (
+    Dict, Optional, Union
+)
+from typing_extensions import Protocol
 
 import attr
+import pandas as pd
 from matplotlib.figure import Figure
 from altair import Chart
 
@@ -28,6 +32,7 @@ class View(Protocol):
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
 
+    @classmethod
     def from_chart_data(cls, data: ChartData) -> "View":
         """
         Instantiates the view from the given `ChartData`.
