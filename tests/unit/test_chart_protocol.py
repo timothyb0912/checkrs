@@ -65,6 +65,7 @@ class ProtocolTests(unittest.TestCase):
         GIVEN a chart instantiated with valid_chart_data
         WHEN we call the save method with any valid keyword-argument
         THEN the appropriate file will be saved to its appropriate location
+        AND we will be returned a boolean indicating saving success
         """
         if not os.path.isdir(self.temp_dir):
             os.mkdir(self.temp_dir)  # Make a directory to hold the test plots
