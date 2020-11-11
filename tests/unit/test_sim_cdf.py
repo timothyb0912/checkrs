@@ -84,3 +84,20 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data).draw(backend="plotnine")
         for layer in chart.layers:
             self.assertIsInstance(layer.stat, p9.stat_ecdf)
+
+    def test_layers_are_cdfs_altair(self):
+        """
+        Each layer of the visualization should be displaying a CDF.
+        """
+        chart = self.chart.from_chart_data(self.data).draw(backend="altair")
+        chart_dict = chart.to_dict()
+        for layer in chart_dict["layer"]:
+            # The layer should be a line
+            self.assertEqual(layer["mark"], "line")
+            # The line should be formed by a cumulative density transform
+            density_transforms = tuple(
+                transform for transform in layer["transform"]
+                if "density" in transform
+            )
+            self.assertTrue(len(density_transforms) == 1)
+            self.assertTrue(density_transforms[0]["cumulative"])
