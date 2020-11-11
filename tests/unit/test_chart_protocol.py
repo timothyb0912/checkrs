@@ -35,7 +35,7 @@ class ProtocolTests(unittest.TestCase):
     @property
     def data(self) -> ChartData:
         np.random.seed(324)
-        y_all = np.random.rand(100, 4)
+        y_all = np.random.rand(100, 10)
         dataframes = []
         for i in range(1, y_all.shape[1]+1):
             current_data = pd.DataFrame({"y": y_all[:, i-1]})
