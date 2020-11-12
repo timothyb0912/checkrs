@@ -384,7 +384,7 @@ class ViewSimCDF(base.View):
         """
         ext = os.path.splitext(filename)[1]
         if ext not in base.EXTENSIONS:
-            raise ValueError(f"Format MUST be in {base.EXTENSIONS_PLOTNINE}")
+            raise ValueError(f"Format MUST be in {base.EXTENSIONS}")
         if ext in base.EXTENSIONS_PLOTNINE:
             chart = self.draw_plotnine()
         elif ext in base.EXTENSIONS_ALTAIR:
