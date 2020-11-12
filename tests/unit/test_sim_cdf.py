@@ -175,3 +175,23 @@ class ChartAttributeTests(unittest.TestCase):
             self.assertEqual(layer.mapping["x"], outcome_col)
             self.assertEqual(layer.mapping["color"], observed_col)
             # Note no need to check y as we know its CDF from stat_ecdf
+
+    def test_chart_uses_plot_theme_labels_altair(self):
+        chart = self.chart.from_chart_data(self.data)
+        encodings = {
+            "x": {
+                    "field": chart.theme.plotting_col,
+                    "title": chart.theme.label_x,
+                },
+            "y": {
+                    "field": "density",
+                    "title": chart.theme.label_y,
+                },
+        }
+        chart_dict = self.chart_altair.to_dict()
+        for layer in chart_dict["layer"]:
+            layer_encoding = layer["encoding"]
+            for key in encodings:
+                self.assertEqual(
+                    layer_encoding[key]["title"], encodings[key]["title"]
+                )
