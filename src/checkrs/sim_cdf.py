@@ -286,10 +286,16 @@ class PlotTheme:
     title : Optional[str] = attr.ib(default=None)
     rotation_y : int = attr.ib(default=0)
     rotation_x : int = attr.ib(default=0)
-    dpi : int = attr.ib(default=500)
+    padding_y_plotnine : int = attr.ib(default=40)
+    padding_y_altair : int = attr.ib(default=100)
+    dpi_print : int = attr.ib(default=500)
+    dpi_web : int = attr.ib(default=72)
     fontsize : int = attr.ib(default=13)
     color_observed : str = attr.ib(default="#045a8d")
     color_simulated : str = attr.ib(default="#a6bddb")
+    width_inches : int = attr.ib(default=5)
+    height_inches : int = attr.ib(default=3)
+
 
     @property
     def label_x(self) -> str:
@@ -297,6 +303,14 @@ class PlotTheme:
             self._label_x if self._label_x is not None else self.plotting_col
         )
         return label
+
+    @property
+    def width_pixels(self) -> int:
+        return self.dpi_web * self.width_inches
+
+    @property
+    def height_pixels(self) -> int:
+        return self.dpi_web * self.height_inches
 
 
 @attr.s
@@ -348,20 +362,8 @@ class ViewSimCDF(base.View):
         for idx in progress(sim_ids):
             chart = chart + self.create_single_cdf_line_plotnine(idx)
 
-        # Add formatting to the plot
-        chart = (
-            chart
-            + p9.xlab(self.theme.label_x)
-            + p9.ylab(self.theme.label_y)
-            + p9.scale_color_manual(
-                (self.theme.color_simulated, self.theme.color_observed),
-                labels=p9.utils.waiver()
-            )
-            + p9.scale_alpha_manual(
-                (0.5, 1),
-                labels=p9.utils.waiver()
-            )
-        )
+        # Format the plot
+        chart = self.format_view_plotnine(chart)
         return chart
 
     def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
@@ -376,18 +378,50 @@ class ViewSimCDF(base.View):
                 data=self._data.loc[self._data[id_col_sim] == id_sim],
             )
 
-
     def draw_altair(self) -> alt.TopLevelMixin:
         sim_ids = self._get_sim_ids()
+
+        # Add the data to the plot
         chart = self.create_single_cdf_line_altair(sim_ids[0])
         for idx in progress(sim_ids[1:]):
             chart += self.create_single_cdf_line_altair(idx)
+
+        # Format the plot
+        chart = self.format_view_altair(chart)
         return chart
 
     def create_single_cdf_line_altair(self, id_sim: int) -> alt.TopLevelMixin:
+        # Get data and metadata
         current_data = self._url if self._url is not None else self._data
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
+
+        # Declare mappings of data to x-axes, y-axes, color and opacity
+        observed_domain = [True, False]
+        color_range = [self.theme.color_observed, self.theme.color_simulated]
+        opacity_range = [1, 0.5]
+
+        encoding_x = alt.X(
+            self.theme.plotting_col,
+            type="quantitative",
+            title=self.theme.label_x,
+        )
+        encoding_y = alt.Y(
+            "density", type="quantitative", title=self.theme.label_y,
+        )
+        encoding_color = alt.Color(
+            observed_col,
+            type="nominal",
+            scale=alt.Scale(domain=observed_domain, range=color_range,),
+        )
+        encoding_opacity = alt.Opacity(
+            observed_col,
+            type="nominal",
+            scale=alt.Scale(domain=observed_domain, range=opacity_range,),
+        )
+
+        # Create the single cdf chart by filtering, transforming, and encoding
+        # data to the lines on the plot.
         chart = (
             alt.Chart(current_data)
                 .transform_filter(alt.datum[id_col_sim] == id_sim)
@@ -400,14 +434,68 @@ class ViewSimCDF(base.View):
                 )
                 .mark_line()
                 .encode(
-                    alt.X(self.theme.plotting_col, type="quantitative"),
-                    alt.Y(
-                        "density:Q",
-                        title=self.theme.label_y,
-                    ),
-                    color=alt.Color(observed_col, type="nominal")
+                    encoding_x,
+                    encoding_y,
+                    encoding_color,
+                    encoding_opacity,
                 )
         )
+        return chart
+
+    def format_view_plotnine(self, chart: p9.ggplot) -> p9.ggplot:
+        """
+        Apply chart formatting options from `self.theme`.
+        """
+        figure_size = (self.theme.width_inches, self.theme.height_inches)
+
+        chart = (
+            chart
+            + p9.theme(
+                axis_text=p9.element_text(size=self.theme.fontsize),
+                axis_title_x=p9.element_text(rotation=self.theme.rotation_x),
+                axis_title_y=p9.element_text(
+                    rotation=self.theme.rotation_y,
+                    margin={"r": self.theme.padding_y_plotnine, "units": "pt"},
+                ),
+                figure_size=figure_size,
+                dpi=self.theme.dpi_print,
+            )
+            + p9.xlab(self.theme.label_x)
+            + p9.ylab(self.theme.label_y)
+            + p9.scale_color_manual(
+                (self.theme.color_simulated, self.theme.color_observed),
+                labels=p9.utils.waiver()
+            )
+            + p9.scale_alpha_manual(
+                (0.5, 1),
+                labels=p9.utils.waiver()
+            )
+        )
+        if self.theme.title is not None:
+            chart = chart + p9.ggtitle(self.theme.title)
+        return chart
+
+    def format_view_altair(self, chart: alt.TopLevelMixin) -> alt.TopLevelMixin:
+        """
+        Apply chart formatting options from `self.theme`.
+        """
+        chart = (
+            chart.configure_axisX(
+                labelFontSize=self.theme.fontsize,
+                titleFontSize=self.theme.fontsize,
+                titleAngle=self.theme.rotation_x,
+            ).configure_axisY(
+                labelFontSize=self.theme.fontsize,
+                titleFontSize=self.theme.fontsize,
+                titleAngle=self.theme.rotation_y,
+                titlePadding=self.theme.padding_y_altair,
+            ).properties(
+                width=self.theme.width_pixels,
+                height=self.theme.height_pixels,
+            )
+        )
+        if self.theme.title is not None:
+            chart = chart.properties(title=self.theme.title)
         return chart
 
     def save(self, filename: str) -> bool:
