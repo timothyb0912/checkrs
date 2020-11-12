@@ -334,7 +334,7 @@ class ViewSimCDF(base.View):
     def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
-        outcome_col = self._metadata["y"]
+        outcome_col = self._metadata["target"]
         return p9.stat_ecdf(
                 mapping=p9.aes(
                     x=outcome_col, color=observed_col, alpha=observed_col
@@ -354,7 +354,7 @@ class ViewSimCDF(base.View):
         current_data = self._url if self._url is not None else self._data
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
-        outcome_col = self._metadata["y"]
+        outcome_col = self._metadata["target"]
         chart = (
             alt.Chart(current_data)
                 .transform_filter(alt.datum[id_col_sim] == id_sim)

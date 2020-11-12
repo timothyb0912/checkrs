@@ -38,14 +38,16 @@ class ProtocolTests(unittest.TestCase):
         y_all = np.random.rand(100, 10)
         dataframes = []
         for i in range(1, y_all.shape[1]+1):
-            current_data = pd.DataFrame({"y": y_all[:, i-1]})
+            current_data = pd.DataFrame({"target": y_all[:, i-1]})
             current_data["observed"] = True if i == 1 else False
             current_data["id_col_sim"] = i
             dataframes.append(current_data)
         data = pd.concat(dataframes, ignore_index=True)
 
         metadata = {
-            "y": "y", "observed": "observed", "id_col_sim": "id_col_sim"
+            "target": "target",
+            "observed": "observed",
+            "id_col_sim": "id_col_sim",
         }
         return ChartData(data=data, url=None, metadata=metadata)
 
