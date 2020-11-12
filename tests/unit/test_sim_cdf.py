@@ -39,14 +39,16 @@ class ChartAttributeTests(unittest.TestCase):
         y_all = np.random.rand(100, 100)
         dataframes = []
         for i in range(1, y_all.shape[1]+1):
-            current_data = pd.DataFrame({"y": y_all[:, i-1]})
+            current_data = pd.DataFrame({"target": y_all[:, i-1]})
             current_data["observed"] = True if i == 1 else False
             current_data["id_col_sim"] = i
             dataframes.append(current_data)
         data = pd.concat(dataframes, ignore_index=True)
 
         metadata = {
-            "y": "y", "observed": "observed", "id_col_sim": "id_col_sim"
+            "target": "target",
+            "observed": "observed",
+            "id_col_sim": "id_col_sim",
         }
         return ChartData(data=data, url=None, metadata=metadata)
 
@@ -147,7 +149,7 @@ class ChartAttributeTests(unittest.TestCase):
         Make sure that we're correctly mapping each layer's data to plot axes
         and colors.
         """
-        outcome_col = self.data.metadata["y"]
+        outcome_col = self.data.metadata["target"]
         observed_col = self.data.metadata["observed"]
         encodings = {
             "x": {"field": outcome_col},
@@ -167,7 +169,7 @@ class ChartAttributeTests(unittest.TestCase):
         Make sure that we're correctly mapping each layer's data to plot axes
         and colors.
         """
-        outcome_col = self.data.metadata["y"]
+        outcome_col = self.data.metadata["target"]
         observed_col = self.data.metadata["observed"]
         for layer in self.chart_p9.layers:
             self.assertEqual(layer.mapping["x"], outcome_col)
