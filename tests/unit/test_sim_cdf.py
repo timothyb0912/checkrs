@@ -106,6 +106,10 @@ class ChartAttributeTests(unittest.TestCase):
             self.assertTrue(density_transforms[0]["cumulative"])
 
     def test_layers_use_unique_data_altair(self):
+        """
+        Each layer of the visualization should use a unique slice of the data
+        for plotting CDFs.
+        """
         filterings = set()
         chart_dict = self.chart_altair.to_dict()
         for layer in chart_dict["layer"]:
@@ -123,6 +127,10 @@ class ChartAttributeTests(unittest.TestCase):
             filterings.add(current_filtering)
 
     def test_layers_use_unique_data_plotnine(self):
+        """
+        Each layer of the visualization should use a unique slice of the data
+        for plotting CDFs.
+        """
         sim_ids = set()
         chart = self.chart_p9
         id_col_sim = self.data.metadata["id_col_sim"]
@@ -135,7 +143,33 @@ class ChartAttributeTests(unittest.TestCase):
             sim_ids.add(sim_id_current)
 
     def test_layers_use_correct_axes_encodings_altair(self):
-        pass
+        """
+        Make sure that we're correctly mapping each layer's data to plot axes
+        and colors.
+        """
+        outcome_col = self.data.metadata["y"]
+        observed_col = self.data.metadata["observed"]
+        encodings = {
+            "x": {"field": outcome_col},
+            "y": {"field": "density"},
+            "color": {"field": observed_col}
+        }
+        chart_dict = self.chart_altair.to_dict()
+        for layer in chart_dict["layer"]:
+            layer_encoding = layer["encoding"]
+            for key in encodings:
+                self.assertEqual(
+                    layer_encoding[key]["field"], encodings[key]["field"]
+                )
 
     def test_layers_use_correct_axes_encodings_plotnine(self):
-        pass
+        """
+        Make sure that we're correctly mapping each layer's data to plot axes
+        and colors.
+        """
+        outcome_col = self.data.metadata["y"]
+        observed_col = self.data.metadata["observed"]
+        for layer in self.chart_p9.layers:
+            self.assertEqual(layer.mapping["x"], outcome_col)
+            self.assertEqual(layer.mapping["color"], observed_col)
+            # Note no need to check y as we know its CDF from stat_ecdf
