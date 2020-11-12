@@ -21,6 +21,23 @@ ViewObject = Union[ggplot, TopLevelMixin]
 
 @attr.s
 class ChartData:
+    """
+    The simulated data we wish to visualize.
+
+    Parameters
+    ----------
+    data : optional, pandas DataFrame or None
+        If not None, should contain the data that we wish to visualize. If
+        None, then `url` should be a string with extension `.json`.
+    url : optional, str or None.
+        If not None,  should be a string with extension `.json`.
+    metadata : dict.
+        Keys and values should both be strings. Should contain, at minimum, the
+        following keys: {"observed", "id_col_sim", "target"}. These should map
+        to values that are column headings in `data`. Respectively, these
+        columns should denote whether the data was observed or simulated, the
+        id of the simulation, and the outcome values.
+    """
     data: Optional[pd.DataFrame] = attr.ib()
     url: Optional[str] = attr.ib()
     metadata: Dict[str, str] = attr.ib()
