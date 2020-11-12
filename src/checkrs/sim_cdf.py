@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 import os
 from typing import (
-    Dict, Iterable, List
+    Dict, Iterable, List, Optional
 )
 
 import altair as alt
@@ -276,17 +276,50 @@ def plot_simulated_cdfs(
 
 
 @attr.s
+class PlotTheme:
+    """
+    Default attributes for a plot
+    """
+    label_y : str = attr.ib()
+    plotting_col : str = attr.ib(default="target")
+    _label_x : Optional[str] = attr.ib(default=None)
+    title : Optional[str] = attr.ib(default=None)
+    rotation_y : int = attr.ib(default=0)
+    rotation_x : int = attr.ib(default=0)
+    dpi : int = attr.ib(default=500)
+    fontsize : int = attr.ib(default=13)
+    color_observed : str = attr.ib(default="#045a8d")
+    color_simulated : str = attr.ib(default="#a6bddb")
+
+    @property
+    def label_x(self) -> str:
+        label = (
+            self._label_x if self._label_x is not None else self.plotting_col
+        )
+        return label
+
+
+@attr.s
 class ViewSimCDF(base.View):
     _data: pd.DataFrame = attr.ib()
     _url: str = attr.ib()
     _metadata: Dict[str, str] = attr.ib()
+    theme : PlotTheme = attr.ib()
 
     @classmethod
     def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
         """
         Instantiates the simulated CDF chart from the given `ChartData`.
         """
-        return cls(data=data.data, url=data.url, metadata=data.metadata)
+        return cls(
+            data=data.data,
+            url=data.url,
+            metadata=data.metadata,
+            theme=PlotTheme(
+                label_y="Cumulative\nDistribution\nFunction",
+                plotting_col=data.metadata["target"],
+            ),
+        )
 
     def draw(self, backend: str) -> base.ViewObject:
         """
@@ -318,10 +351,10 @@ class ViewSimCDF(base.View):
         # Add formatting to the plot
         chart = (
             chart
-            + p9.xlab("x-axis")
-            + p9.ylab("Cumulative Distribution Function")
+            + p9.xlab(self.theme.label_x)
+            + p9.ylab(self.theme.label_y)
             + p9.scale_color_manual(
-                ("#a6bddb", "#045a8d"),
+                (self.theme.color_simulated, self.theme.color_observed),
                 labels=p9.utils.waiver()
             )
             + p9.scale_alpha_manual(
@@ -334,10 +367,11 @@ class ViewSimCDF(base.View):
     def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
-        outcome_col = self._metadata["target"]
         return p9.stat_ecdf(
                 mapping=p9.aes(
-                    x=outcome_col, color=observed_col, alpha=observed_col
+                    x=self.theme.plotting_col,
+                    color=observed_col,
+                    alpha=observed_col,
                 ),
                 data=self._data.loc[self._data[id_col_sim] == id_sim],
             )
@@ -354,23 +388,22 @@ class ViewSimCDF(base.View):
         current_data = self._url if self._url is not None else self._data
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
-        outcome_col = self._metadata["target"]
         chart = (
             alt.Chart(current_data)
                 .transform_filter(alt.datum[id_col_sim] == id_sim)
                 .transform_density(
-                    outcome_col,
-                    as_=[outcome_col, "density"],
+                    self.theme.plotting_col,
+                    as_=[self.theme.plotting_col, "density"],
                     groupby=[observed_col],
                     cumulative=True,
                     steps=25,
                 )
                 .mark_line()
                 .encode(
-                    alt.X(outcome_col, type="quantitative"),
+                    alt.X(self.theme.plotting_col, type="quantitative"),
                     alt.Y(
                         "density:Q",
-                        title="Cumulative Distribution Function"
+                        title=self.theme.label_y,
                     ),
                     color=alt.Color(observed_col, type="nominal")
                 )
