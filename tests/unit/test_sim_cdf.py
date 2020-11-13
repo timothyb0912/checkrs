@@ -197,13 +197,20 @@ class ChartAttributeTests(unittest.TestCase):
                 )
 
     def test_chart_uses_plot_theme_labels_plotnine(self):
-        pass
+        # Is the x and y-axis label correct?
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        self.assertEqual(chart_plotnine.labels["x"], chart.theme.label_x)
+        self.assertEqual(chart_plotnine.labels["y"], chart.theme.label_y)
 
     def test_chart_uses_plot_theme_title_altair(self):
         pass
 
-    def test_chart_uses_plot_theme_title_altair(self):
-        pass
+    def test_chart_uses_plot_theme_title_plotnine(self):
+        chart = self.chart.from_chart_data(self.data)
+        chart.theme.title = "A Test!"
+        chart_plotnine = chart.draw(backend="plotnine")
+        self.assertEqual(chart_plotnine.labels["title"], chart.theme.title)
 
     def test_chart_uses_plot_theme_rotations_altair(self):
         pass
@@ -221,7 +228,12 @@ class ChartAttributeTests(unittest.TestCase):
         pass
 
     def test_chart_uses_plot_theme_figsize_plotnine(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        self.assertEqual(
+            chart_plotnine.theme.themeables["figure_size"].properties["value"],
+            (chart.theme.width_inches, chart.theme.height_inches),
+        )
 
     def test_chart_uses_plot_theme_colors_altair(self):
         pass
@@ -233,4 +245,11 @@ class ChartAttributeTests(unittest.TestCase):
         pass
 
     def test_chart_uses_plot_theme_fontsize_plotnine(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        self.assertEqual(
+            chart_plotnine.theme
+                .themeables["axis_text"]
+                .properties["size"],
+            chart.theme.fontsize,
+        )
