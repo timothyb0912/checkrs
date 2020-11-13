@@ -276,48 +276,11 @@ def plot_simulated_cdfs(
 
 
 @attr.s
-class PlotTheme:
-    """
-    Default attributes for a plot
-    """
-    label_y : str = attr.ib()
-    plotting_col : str = attr.ib(default="target")
-    _label_x : Optional[str] = attr.ib(default=None)
-    title : Optional[str] = attr.ib(default=None)
-    rotation_y : int = attr.ib(default=0)
-    rotation_x_ticks : int = attr.ib(default=0)
-    padding_y_plotnine : int = attr.ib(default=40)
-    padding_y_altair : int = attr.ib(default=100)
-    dpi_print : int = attr.ib(default=500)
-    dpi_web : int = attr.ib(default=72)
-    fontsize : int = attr.ib(default=13)
-    color_observed : str = attr.ib(default="#045a8d")
-    color_simulated : str = attr.ib(default="#a6bddb")
-    width_inches : int = attr.ib(default=5)
-    height_inches : int = attr.ib(default=3)
-
-    @property
-    def label_x(self) -> str:
-        label = (
-            self._label_x if self._label_x is not None else self.plotting_col
-        )
-        return label
-
-    @property
-    def width_pixels(self) -> int:
-        return self.dpi_web * self.width_inches
-
-    @property
-    def height_pixels(self) -> int:
-        return self.dpi_web * self.height_inches
-
-
-@attr.s
 class ViewSimCDF(base.View):
     _data: pd.DataFrame = attr.ib()
     _url: str = attr.ib()
     _metadata: Dict[str, str] = attr.ib()
-    theme : PlotTheme = attr.ib()
+    theme : base.PlotTheme = attr.ib()
 
     @classmethod
     def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
@@ -328,7 +291,7 @@ class ViewSimCDF(base.View):
             data=data.data,
             url=data.url,
             metadata=data.metadata,
-            theme=PlotTheme(
+            theme=base.PlotTheme(
                 label_y="Cumulative\nDistribution\nFunction",
                 plotting_col=data.metadata["target"],
             ),
