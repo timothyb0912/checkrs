@@ -317,3 +317,46 @@ class ChartAttributeTests(unittest.TestCase):
                 .properties["size"],
             chart.theme.fontsize,
         )
+
+    def test_setting_chart_plotting_column(self):
+        """
+        Ensure we can appropriately change the chart's plotting column.
+        """
+        data = self.data
+        new_plotting_column = "target_copy"
+
+        data.data[new_plotting_column] = data.data[
+            self.data.metadata["target"]
+        ].copy()
+        chart = self.chart.from_chart_data(data)
+        chart.set_plotting_col(new_plotting_column)
+
+        chart_dict = chart.draw(backend="altair").to_dict()
+        chart_p9 = chart.draw(backend="plotnine")
+
+        for layer in chart_p9.layers:
+            self.assertEqual(layer.mapping["x"], new_plotting_column)
+        for layer in chart_dict["layer"]:
+            self.assertEqual(
+                layer["encoding"]["x"]["field"], new_plotting_column
+            )
+
+    def test_setting_chart_plotting_column_validation(self):
+        """
+        Make sure we can't store invalid plotting columns.
+        """
+        bad_plotting_columns_type = [1.7, None, False]
+        bad_plotting_columns_value = ["foo"]
+        chart = self.chart.from_chart_data(self.data)
+        for column in bad_plotting_columns_type:
+            self.assertRaises(
+                TypeError,
+                chart.set_plotting_col,
+                column=column
+            )
+        for column in bad_plotting_columns_value:
+            self.assertRaises(
+                ValueError,
+                chart.set_plotting_col,
+                column=column
+            )

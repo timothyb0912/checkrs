@@ -282,6 +282,19 @@ class ViewSimCDF(base.View):
     _metadata: Dict[str, str] = attr.ib()
     theme : base.PlotTheme = attr.ib()
 
+    def set_plotting_col(self, column: str) -> bool:
+        """
+        Raises ValueError if `column` not in `data`.
+        """
+        if not isinstance(column, str):
+            msg = "`column` MUST be a string."
+            raise TypeError(column)
+        if column not in self._data.columns:
+            msg = "`column` not in `data.columns`"
+            raise ValueError(msg)
+        self.theme.plotting_col = column
+        return True
+
     @classmethod
     def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
         """
