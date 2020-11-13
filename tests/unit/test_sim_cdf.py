@@ -204,7 +204,10 @@ class ChartAttributeTests(unittest.TestCase):
         self.assertEqual(chart_plotnine.labels["y"], chart.theme.label_y)
 
     def test_chart_uses_plot_theme_title_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart.theme.title = "A Fancy Title!"
+        chart_dict = chart.draw(backend="altair").to_dict()
+        self.assertEqual(chart_dict["title"], chart.theme.title,)
 
     def test_chart_uses_plot_theme_title_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
@@ -213,7 +216,12 @@ class ChartAttributeTests(unittest.TestCase):
         self.assertEqual(chart_plotnine.labels["title"], chart.theme.title)
 
     def test_chart_uses_plot_theme_rotations_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_dict = self.chart_altair.to_dict()
+        self.assertEqual(
+            chart_dict["config"]["axisY"]["titleAngle"],
+            chart.theme.rotation_y,
+        )
 
     def test_chart_uses_plot_theme_rotations_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
@@ -226,7 +234,12 @@ class ChartAttributeTests(unittest.TestCase):
         )
 
     def test_chart_uses_plot_theme_padding_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_dict = self.chart_altair.to_dict()
+        self.assertEqual(
+            chart_dict["config"]["axisY"]["titlePadding"],
+            chart.theme.padding_y_altair,
+        )
 
     def test_chart_uses_plot_theme_padding_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
