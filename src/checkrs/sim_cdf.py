@@ -493,7 +493,11 @@ class ViewSimCDF(base.View):
             )
         )
         if self.theme.title is not None:
-            chart = chart.properties(title=self.theme.title)
+            chart = chart.properties(
+                width=self.theme.width_pixels,
+                height=self.theme.height_pixels,
+                title=self.theme.title,
+            ).configure_title(fontSize=self.theme.fontsize)
         return chart
 
     def save(self, filename: str) -> bool:
