@@ -40,3 +40,13 @@ classifiers=[
     "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: BSD License",
 ]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py35, py36, py37, py38
+
+[testenv]
+deps = pytest >= 3.3.0
+commands = pytest
+"""
