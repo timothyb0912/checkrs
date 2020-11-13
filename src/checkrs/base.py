@@ -163,6 +163,7 @@ class View(Protocol):
     """
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
+    theme : PlotTheme
 
     @classmethod
     def from_chart_data(cls, data: ChartData) -> "View":
