@@ -9,6 +9,7 @@ author-email = "timothyb0912@gmail.com"
 home-page = "https://github.com/timothyb0912/checkrs"
 requires = [
     "altair",
+    "altair-viewer",
     "attrs",
     "future",
     "matplotlib",
