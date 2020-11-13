@@ -252,7 +252,10 @@ class ChartAttributeTests(unittest.TestCase):
         )
 
     def test_chart_uses_plot_theme_figsize_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_dict = self.chart_altair.to_dict()
+        self.assertEqual(chart_dict["width"], chart.theme.width_pixels)
+        self.assertEqual(chart_dict["height"], chart.theme.height_pixels)
 
     def test_chart_uses_plot_theme_figsize_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
@@ -278,7 +281,21 @@ class ChartAttributeTests(unittest.TestCase):
         self.assertTrue(specified_color_set in observed_scales)
 
     def test_chart_uses_plot_theme_fontsize_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart.theme.title = "A Fancy Title!"
+        chart_dict = chart.draw(backend="altair").to_dict()
+        # Collect all fontsizes
+        fontsizes = set()
+        fontsizes.add(chart_dict["config"]["axisX"]["labelFontSize"])
+        fontsizes.add(chart_dict["config"]["axisX"]["titleFontSize"])
+        fontsizes.add(chart_dict["config"]["axisY"]["labelFontSize"])
+        fontsizes.add(chart_dict["config"]["axisY"]["titleFontSize"])
+        if "title" in chart_dict:
+            fontsizes.add(chart_dict["config"]["title"]["fontSize"])
+        # Make sure they equal the specified fontsize
+        fontsizes = list(fontsizes)
+        self.assertEqual(len(fontsizes), 1)
+        self.assertEqual(fontsizes[0], chart.theme.fontsize)
 
     def test_chart_uses_plot_theme_fontsize_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
