@@ -28,6 +28,7 @@ reorder-python-imports
 scikit-learn
 seaborn
 statsmodels
+tox
 tqdm
 xenon
 watermark
