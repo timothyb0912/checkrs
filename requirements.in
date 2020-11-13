@@ -1,8 +1,11 @@
+altair
+altair-viewer
 attrs
 black
 bump2version
 flake8
 flit
+future
 gitchangelog
 graphviz
 interrogate
@@ -10,6 +13,9 @@ jupyter
 jupytext
 pandas
 pip-tools
+pipdeptree
+pipreqs
+plotnine
 pre-commit
 pydeps
 pydocstyle
