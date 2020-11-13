@@ -266,7 +266,18 @@ class ChartAttributeTests(unittest.TestCase):
         )
 
     def test_chart_uses_plot_theme_colors_altair(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        specified_colors = set(
+            (chart.theme.color_observed, chart.theme.color_simulated,)
+        )
+
+        chart_dict = self.chart_altair.to_dict()
+        plotted_colors = set()
+        for layer in chart_dict["layer"]:
+            plotted_colors.update(layer["encoding"]["color"]["scale"]["range"])
+
+        self.assertEqual(len(plotted_colors), 2)
+        self.assertEqual(plotted_colors, specified_colors)
 
     def test_chart_uses_plot_theme_colors_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
