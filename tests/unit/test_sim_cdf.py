@@ -195,3 +195,42 @@ class ChartAttributeTests(unittest.TestCase):
                 self.assertEqual(
                     layer_encoding[key]["title"], encodings[key]["title"]
                 )
+
+    def test_chart_uses_plot_theme_labels_plotnine(self):
+        pass
+
+    def test_chart_uses_plot_theme_title_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_title_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_rotations_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_rotations_plotnine(self):
+        pass
+
+    def test_chart_uses_plot_theme_padding_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_padding_plotnine(self):
+        pass
+
+    def test_chart_uses_plot_theme_figsize_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_figsize_plotnine(self):
+        pass
+
+    def test_chart_uses_plot_theme_colors_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_colors_plotnine(self):
+        pass
+
+    def test_chart_uses_plot_theme_fontsize_altair(self):
+        pass
+
+    def test_chart_uses_plot_theme_fontsize_plotnine(self):
+        pass
