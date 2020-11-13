@@ -285,7 +285,7 @@ class PlotTheme:
     _label_x : Optional[str] = attr.ib(default=None)
     title : Optional[str] = attr.ib(default=None)
     rotation_y : int = attr.ib(default=0)
-    rotation_x_ticks : int = attri.ib(default=0)
+    rotation_x_ticks : int = attr.ib(default=0)
     padding_y_plotnine : int = attr.ib(default=40)
     padding_y_altair : int = attr.ib(default=100)
     dpi_print : int = attr.ib(default=500)
@@ -451,7 +451,6 @@ class ViewSimCDF(base.View):
             chart
             + p9.theme(
                 axis_text=p9.element_text(size=self.theme.fontsize),
-                axis_title_x=p9.element_text(rotation=self.theme.rotation_x),
                 axis_title_y=p9.element_text(
                     rotation=self.theme.rotation_y,
                     margin={"r": self.theme.padding_y_plotnine, "units": "pt"},
