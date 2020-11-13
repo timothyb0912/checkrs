@@ -44,7 +44,8 @@ classifiers=[
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py35, py36, py37, py38
+isolated_build = True
+envlist = py36, py37, py38
 
 [testenv]
 deps = pytest >= 3.3.0
