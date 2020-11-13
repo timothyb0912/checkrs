@@ -216,13 +216,27 @@ class ChartAttributeTests(unittest.TestCase):
         pass
 
     def test_chart_uses_plot_theme_rotations_plotnine(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        self.assertEqual(
+            chart_plotnine.theme
+                .themeables["axis_title_y"]
+                .properties["rotation"],
+            chart.theme.rotation_y,
+        )
 
     def test_chart_uses_plot_theme_padding_altair(self):
         pass
 
     def test_chart_uses_plot_theme_padding_plotnine(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        self.assertEqual(
+            chart_plotnine.theme
+                .themeables["axis_title_y"]
+                .properties["margin"]["r"],
+            chart.theme.padding_y_plotnine,
+        )
 
     def test_chart_uses_plot_theme_figsize_altair(self):
         pass
@@ -239,7 +253,16 @@ class ChartAttributeTests(unittest.TestCase):
         pass
 
     def test_chart_uses_plot_theme_colors_plotnine(self):
-        pass
+        chart = self.chart.from_chart_data(self.data)
+        chart_plotnine = self.chart_p9
+        num_kinds = self.data.data["observed"].unique().size
+        specified_color_set = set(
+            (chart.theme.color_observed, chart.theme.color_simulated)
+        )
+        observed_scales = tuple(
+            set(scale.palette(num_kinds)) for scale in chart_plotnine.scales
+        )
+        self.assertTrue(specified_color_set in observed_scales)
 
     def test_chart_uses_plot_theme_fontsize_altair(self):
         pass
