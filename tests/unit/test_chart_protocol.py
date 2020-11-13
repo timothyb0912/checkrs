@@ -10,8 +10,11 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from checkrs.base import ChartData, View, ggplot, TopLevelMixin
-from checkrs.sim_cdf import ViewSimCDF
+from checkrs import ChartData
+from checkrs import View
+from checkrs import ViewSimCDF
+from checkrs.base import ggplot
+from checkrs.base import TopLevelMixin
 
 
 class ProtocolTests(unittest.TestCase):
@@ -40,14 +43,14 @@ class ProtocolTests(unittest.TestCase):
         for i in range(1, y_all.shape[1]+1):
             current_data = pd.DataFrame({"target": y_all[:, i-1]})
             current_data["observed"] = True if i == 1 else False
-            current_data["id_col_sim"] = i
+            current_data["id_sim"] = i
             dataframes.append(current_data)
         data = pd.concat(dataframes, ignore_index=True)
 
         metadata = {
             "target": "target",
             "observed": "observed",
-            "id_col_sim": "id_col_sim",
+            "id_sim": "id_sim",
         }
         return ChartData(data=data, url=None, metadata=metadata)
 

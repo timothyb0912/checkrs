@@ -325,7 +325,7 @@ class ViewSimCDF(base.View):
         # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
         # Hopefully its the observed line
         sim_ids = np.sort(
-            self._data[self._metadata["id_col_sim"]].unique()
+            self._data[self._metadata["id_sim"]].unique()
         ).tolist()[::-1]
         return sim_ids
 
@@ -348,7 +348,7 @@ class ViewSimCDF(base.View):
         """
         Specifies a singe CDF line on the plot using plotnine.
         """
-        id_col_sim = self._metadata["id_col_sim"]
+        id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
         return p9.stat_ecdf(
                 mapping=p9.aes(
@@ -380,7 +380,7 @@ class ViewSimCDF(base.View):
         """
         # Get data and metadata
         current_data = self._url if self._url is not None else self._data
-        id_col_sim = self._metadata["id_col_sim"]
+        id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
 
         # Declare mappings of data to x-axes, y-axes, color and opacity

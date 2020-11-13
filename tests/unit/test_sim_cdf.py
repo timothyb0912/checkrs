@@ -10,8 +10,9 @@ import numpy as np
 import pandas as pd
 import plotnine as p9
 
-from checkrs.base import ChartData, View
-from checkrs.sim_cdf import ViewSimCDF
+from checkrs import ChartData
+from checkrs import View
+from checkrs import ViewSimCDF
 
 # The test data is "large" so disable warnings
 alt.data_transformers.disable_max_rows()
@@ -41,14 +42,14 @@ class ChartAttributeTests(unittest.TestCase):
         for i in range(1, y_all.shape[1]+1):
             current_data = pd.DataFrame({"target": y_all[:, i-1]})
             current_data["observed"] = True if i == 1 else False
-            current_data["id_col_sim"] = i
+            current_data["id_sim"] = i
             dataframes.append(current_data)
         data = pd.concat(dataframes, ignore_index=True)
 
         metadata = {
             "target": "target",
             "observed": "observed",
-            "id_col_sim": "id_col_sim",
+            "id_sim": "id_sim",
         }
         return ChartData(data=data, url=None, metadata=metadata)
 
@@ -70,18 +71,18 @@ class ChartAttributeTests(unittest.TestCase):
     def test_num_layers_altair(self):
         """
         We should have one layer per CDF and one CDF per unique value of
-        "id_col_sim".
+        "id_sim".
         """
         chart_dict = self.chart_altair.to_dict()
-        num_simulations = self.data.data["id_col_sim"].unique().size
+        num_simulations = self.data.data["id_sim"].unique().size
         self.assertEqual(len(chart_dict["layer"]), num_simulations)
 
     def test_num_layers_plotnine(self):
         """
         We should have one layer per CDF and one CDF per unique value of
-        "id_col_sim".
+        "id_sim".
         """
-        num_simulations = self.data.data["id_col_sim"].unique().size
+        num_simulations = self.data.data["id_sim"].unique().size
         self.assertEqual(len(self.chart_p9.layers), num_simulations)
 
     def test_layers_are_cdfs_plotnine(self):
@@ -135,7 +136,7 @@ class ChartAttributeTests(unittest.TestCase):
         """
         sim_ids = set()
         chart = self.chart_p9
-        id_col_sim = self.data.metadata["id_col_sim"]
+        id_col_sim = self.data.metadata["id_sim"]
         for layer in chart.layers:
             current_data = layer.data if layer.data is not None else chart.data
             sim_ids_potential = current_data[id_col_sim].unique()
