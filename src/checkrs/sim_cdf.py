@@ -299,7 +299,7 @@ class ViewSimCDF(base.View):
 
     def draw(self, backend: str) -> base.ViewObject:
         """
-        Renders the view of the data using a specified backend.
+        Specifies the view of the data using `backend`.
         """
         if backend == "plotnine":
             return self.draw_plotnine()
@@ -317,6 +317,9 @@ class ViewSimCDF(base.View):
         return sim_ids
 
     def draw_plotnine(self) -> p9.ggplot:
+        """
+        Specifies the plot using plotnine.
+        """
         sim_ids = self._get_sim_ids()
 
         # Add the data to the plot
@@ -329,6 +332,9 @@ class ViewSimCDF(base.View):
         return chart
 
     def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
+        """
+        Specifies a singe CDF line on the plot using plotnine.
+        """
         id_col_sim = self._metadata["id_col_sim"]
         observed_col = self._metadata["observed"]
         return p9.stat_ecdf(
@@ -341,6 +347,9 @@ class ViewSimCDF(base.View):
             )
 
     def draw_altair(self) -> alt.TopLevelMixin:
+        """
+        Specifies the plot through Altair.
+        """
         sim_ids = self._get_sim_ids()
 
         # Add the data to the plot
@@ -353,6 +362,9 @@ class ViewSimCDF(base.View):
         return chart
 
     def create_single_cdf_line_altair(self, id_sim: int) -> alt.TopLevelMixin:
+        """
+        Specifies a singe CDF line on the plot using Altair.
+        """
         # Get data and metadata
         current_data = self._url if self._url is not None else self._data
         id_col_sim = self._metadata["id_col_sim"]
@@ -436,7 +448,9 @@ class ViewSimCDF(base.View):
             chart = chart + p9.ggtitle(self.theme.title)
         return chart
 
-    def format_view_altair(self, chart: alt.TopLevelMixin) -> alt.TopLevelMixin:
+    def format_view_altair(
+        self, chart: alt.TopLevelMixin
+    ) -> alt.TopLevelMixin:
         """
         Apply chart formatting options from `self.theme`.
         """
