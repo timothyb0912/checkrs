@@ -4,6 +4,8 @@ Tools for simulation-based model checking and diagnostics.
 """
 from __future__ import absolute_import
 
+from .base import ChartData
+from .base import View
 from .cont_scalars import plot_continous_scalars
 from .disc_scalars import plot_discrete_scalars
 from .marginal import plot_smoothed_marginal

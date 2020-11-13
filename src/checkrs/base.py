@@ -7,9 +7,13 @@ from typing import (
 from typing_extensions import Protocol
 
 import attr
+import numpy as np
 import pandas as pd
+import torch
 from plotnine import ggplot
 from altair import TopLevelMixin
+
+from checkrs.utils import progress
 
 
 EXTENSIONS_PLOTNINE = set((".png", ".pdf"))
@@ -17,6 +21,7 @@ EXTENSIONS_ALTAIR = set((".html", ".json"))
 EXTENSIONS = EXTENSIONS_PLOTNINE | EXTENSIONS_ALTAIR
 
 ViewObject = Union[ggplot, TopLevelMixin]
+TensOrArray = Union[np.ndarray, torch.Tensor]
 
 
 @attr.s
@@ -33,7 +38,7 @@ class ChartData:
         If not None,  should be a string with extension `.json`.
     metadata : dict.
         Keys and values should both be strings. Should contain, at minimum, the
-        following keys: {"observed", "id_col_sim", "target"}. These should map
+        following keys: {"observed", "id_sim", "target"}. These should map
         to values that are column headings in `data`. Respectively, these
         columns should denote whether the data was observed or simulated, the
         id of the simulation, and the outcome values.
@@ -56,7 +61,7 @@ class ChartData:
     def _check_data_columns(self, attribute, value) -> bool:
         self._check_metadata("metadata", self.metadata)
         # Check columns
-        id_col_sim = self.metadata["id_col_sim"]
+        id_col_sim = self.metadata["id_sim"]
         needed_cols = [
             id_col_sim, self.metadata["observed"], self.metadata["target"]
         ]
@@ -73,7 +78,7 @@ class ChartData:
         self._check_metadata("metadata", self.metadata)
         # Check shape
         shape = {}
-        id_col_sim = self.metadata["id_col_sim"]
+        id_col_sim = self.metadata["id_sim"]
         for idx in self.data[id_col_sim].unique():
             current_shape = self.data.loc[
                 self.data[id_col_sim] == idx
@@ -103,7 +108,7 @@ class ChartData:
             msg = "`metadata` MUST be a dict."
             raise ValueError(msg)
 
-        needed_aliases = ["observed", "id_col_sim", "target"]
+        needed_aliases = ["observed", "id_sim", "target"]
         has_needed_aliases = all((alias in value for alias in needed_aliases))
         if not has_needed_aliases:
             msg = f"`metadata` MUST contain the following:\n{needed_aliases}"
@@ -119,6 +124,105 @@ class ChartData:
             )
             raise ValueError(msg)
         return True
+
+    @classmethod
+    def _get_id_sim(cls, tidy_df: pd.DataFrame) -> int:
+        if tidy_df.shape[0] == 0:
+            return 0
+        else:
+            return int(tidy_df["id_sim"].max())
+
+    @classmethod
+    def _add_dataset_to_tidy_df(
+        cls,
+        tidy_df: pd.DataFrame,
+        new_y: np.ndarray,
+        x: Optional[pd.DataFrame]=None,
+        observed: bool=False
+    ) -> pd.DataFrame:
+        to_add = pd.DataFrame({
+            "target": new_y,
+        })
+        to_add["observed"] = observed
+        to_add["id_sim"] = cls._get_id_sim(tidy_df) + 1
+
+        if x is not None:
+            to_add = to_add.join(x)
+
+        return tidy_df.append(to_add, ignore_index=True)
+
+    @classmethod
+    def _make_tidy_df_from_raw(
+        cls,
+        targets: TensOrArray,
+        targets_simulated: TensOrArray,
+        design: Optional[pd.DataFrame] = None,
+    ) -> pd.DataFrame:
+        targets_np = (
+            targets if isinstance(targets, np.ndarray) else targets.numpy()
+        )
+        targets_simulated_np = (
+            targets_simulated if isinstance(targets_simulated, np.ndarray)
+            else targets_simulated.numpy()
+        )
+
+        tidy_df = pd.DataFrame(columns=["target", "observed", "id_sim"])
+        tidy_df = cls._add_dataset_to_tidy_df(
+            tidy_df, new_y=targets_np, x=design, observed=True
+        )
+        for col in progress(range(targets_simulated_np.shape[1])):
+            tidy_df = cls._add_dataset_to_tidy_df(
+                tidy_df,
+                new_y=targets_simulated_np[:, col],
+                x=design,
+                observed=False
+            )
+        tidy_df.id_sim = tidy_df.id_sim.astype(int)
+        return tidy_df
+
+    @classmethod
+    def from_raw(
+        cls,
+        targets: TensOrArray,
+        targets_simulated: TensOrArray,
+        design: Optional[pd.DataFrame],
+        url: Optional[str] = None,
+    ) -> "ChartData":
+        """
+        Instantiates a ChartData object from the raw data.
+
+        Parameters
+        ----------
+        targets : Union[torch.Tensor, np.ndarray]
+            1D Tensor or 1D ndarray. Denotes the target variables for the rows
+            in `design`.
+        targets_simulated : Union[torch.Tensor, np.ndarray]
+            2D Tensor or 2D ndarray. Each column denotes a simulated set of
+            target values for the rows in `design`.
+        url : optional, str or None.
+            Denotes the location that the data is currently saved at, as a json
+            file, or where the data's json should be saved. Should have a
+            '.json' file extension. Default is None.
+        design : optional, pd.DataFrame or None.
+            If DataFrame, this should be the design matrix used to create
+            `targets_simulated` and any additional variables of interest that
+            can be associated with each row of the original design matrix.
+            Default is None.
+
+        Returns
+        -------
+        Instantiated ChartData object.
+        """
+        tidy_df = cls._make_tidy_df_from_raw(
+            targets, targets_simulated, design
+        )
+
+        metadata = {
+            "target": "target",
+            "observed": "observed",
+            "id_sim": "id_sim",
+        }
+        return cls(data=tidy_df, url=url, metadata=metadata)
 
 
 @attr.s

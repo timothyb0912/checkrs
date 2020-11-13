@@ -10,30 +10,31 @@ import numpy as np
 import pandas as pd
 import plotnine as p9
 
-from checkrs.base import ChartData
+from checkrs import ChartData
 
 
 class ChartDataTests(unittest.TestCase):
     """
-    Testing data validation of ChartData instances.
+    Testing data validation and instantiation of ChartData.
     """
+    num_obs : int = 100
 
     @property
     def good_data(self) -> ChartData:
         np.random.seed(324)
-        y_all = np.random.rand(100, 100)
+        y_all = np.random.rand(self.num_obs, 10)
         dataframes = []
         for i in range(1, y_all.shape[1]+1):
             current_data = pd.DataFrame({"target": y_all[:, i-1]})
             current_data["observed"] = True if i == 1 else False
-            current_data["id_col_sim"] = i
+            current_data["id_sim"] = i
             dataframes.append(current_data)
         data = pd.concat(dataframes, ignore_index=True)
 
         metadata = {
             "target": "target",
             "observed": "observed",
-            "id_col_sim": "id_col_sim",
+            "id_sim": "id_sim",
         }
         return ChartData(data=data, url=None, metadata=metadata)
 
@@ -60,10 +61,10 @@ class ChartDataTests(unittest.TestCase):
             {"target": "target", "observed": "observed"},
             {"target": "target",
              "simulated": "observed",
-             "id_col_sim": "id_col_sim",
+             "id_sim": "id_sim",
             },
-            {"target": "target", "observed": "observed", "id_col_sim": 1},
-            {"target": "target", "observed": "observed", "id_col_sim": "foo"},
+            {"target": "target", "observed": "observed", "id_sim": 1},
+            {"target": "target", "observed": "observed", "id_sim": "foo"},
         ]
         return gremlins
 
@@ -141,3 +142,36 @@ class ChartDataTests(unittest.TestCase):
                 url=good_data.url,
                 metadata=good_data.metadata
             )
+
+    def test_from_raw(self):
+        """
+        Create a ChartData instance from raw data. Should throw no errors.
+        """
+        np.random.seed(324)
+        num_simulations = 10
+        y_all = np.random.rand(self.num_obs, num_simulations + 1)
+        y = y_all[:, 0]
+        y_sim = y_all[:, 1:]
+        x = pd.DataFrame(
+            {"x":
+                np.random.choice([0, 1], p=[0.5, 0.5], size=self.num_obs),
+             "x2":
+                np.random.choice([3, 4], p=[0.5, 0.5], size=self.num_obs),
+            }
+        )
+
+        custom_urls = [
+            "./temp/fancy_custom_name.json",
+            "data.json",
+            None,
+        ]
+        for url in custom_urls:
+            data = ChartData.from_raw(
+                design=x, targets=y, targets_simulated=y_sim, url=url
+            )
+            self.assertEqual(data.url, url)
+            self.assertEqual(
+                data.data[data.metadata["id_sim"]].unique().size,
+                num_simulations + 1
+            )
+            self.assertTrue(all(col in data.data.columns for col in x.columns))
