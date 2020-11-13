@@ -285,7 +285,7 @@ class PlotTheme:
     _label_x : Optional[str] = attr.ib(default=None)
     title : Optional[str] = attr.ib(default=None)
     rotation_y : int = attr.ib(default=0)
-    rotation_x : int = attr.ib(default=0)
+    rotation_x_ticks : int = attri.ib(default=0)
     padding_y_plotnine : int = attr.ib(default=40)
     padding_y_altair : int = attr.ib(default=100)
     dpi_print : int = attr.ib(default=500)
@@ -295,7 +295,6 @@ class PlotTheme:
     color_simulated : str = attr.ib(default="#a6bddb")
     width_inches : int = attr.ib(default=5)
     height_inches : int = attr.ib(default=3)
-
 
     @property
     def label_x(self) -> str:
@@ -482,8 +481,8 @@ class ViewSimCDF(base.View):
         chart = (
             chart.configure_axisX(
                 labelFontSize=self.theme.fontsize,
+                labelAngle=self.theme.rotation_x_ticks,
                 titleFontSize=self.theme.fontsize,
-                titleAngle=self.theme.rotation_x,
             ).configure_axisY(
                 labelFontSize=self.theme.fontsize,
                 titleFontSize=self.theme.fontsize,
