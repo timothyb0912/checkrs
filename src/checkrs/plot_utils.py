@@ -181,29 +181,3 @@ def _plot_single_cdf_on_axis(
         drawstyle="steps-post",
     )
     return None
-
-def _plot_single_cdf_on_chart(
-    chart: alt.Chart,
-    current_col: str,
-    color_col: str="simulated",
-    label_y: str="Cumulative\nDensity\nFunction",
-    alpha: float=0.1,
-) -> alt.Chart:
-    # Try to use unique names for columns being written to a dataframe.
-    temp_name = f"{label_y}_{current_col}"
-
-    # Add the line for the current column's density estimate
-    chart += chart.transform_density(
-        current_col,
-        as_=[current_col, temp_name],
-        cumulative=True
-    ).mark_line(
-        interpolate="step-after",
-        point=True,
-    ).encode(
-        alt.X(current_col, type="quantitative", title=current_col),
-        alt.Y(temp_name, type="quantitative", title=label_y),
-        color=color_col,
-        opacity=alt.value(alpha),
-    )
-    return chart
