@@ -1,1 +1,1 @@
-Setting up package development requirements files.
+Set up package development requirements files.
