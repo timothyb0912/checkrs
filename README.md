@@ -93,7 +93,7 @@ Then take a look into the `scripts` and `notebooks` folders.
    pip-compile requirements.in
    ```
 3. Manually update any non-pip dependencies in `environment.yml`, being sure to pin any such dependencies to a specific version.
-3. Update your current environment using:
+4. Update your current environment using:
    ```
    conda env update -f environment.yml
    ```
