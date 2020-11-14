@@ -1,9 +1,3 @@
-=========
-Changelog
-=========
-
-.. towncrier release notes start
-
 Checkrs 0.1.2 (2020-11-13)
 ==========================
 
@@ -30,9 +24,3 @@ Misc
 ----
 
 - #12
-
-
-Version 0.1.0
-=============
-
-- Uploaded the initial package version to PyPI.
