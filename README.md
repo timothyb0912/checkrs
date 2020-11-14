@@ -85,9 +85,9 @@ Then take a look into the `scripts` and `notebooks` folders.
 
 1. Always keep your abstract (unpinned) dependencies updated in `environment.yml`, `requirements.in`, and eventually in `pyproject.toml` if you want to ship and install the package via `pip` later on.
 
-   Use `environment.yml` for dependencies that cannot be installed via `pip`.
-   Use `requirements.in` for dependencies that can be installed via `pip`.
-   Use `pyproject.toml` for dependencies that are needed for `checkrs` to function at all, not just in development.
+   - Use `environment.yml` for dependencies that cannot be installed via `pip`.
+   - Use `requirements.in` for dependencies that can be installed via `pip`.
+   - Use `pyproject.toml` for dependencies that are needed for `checkrs` to function at all, not just in development.
 2. Create concrete dependencies as `requirements.txt` for the exact reproduction of your environment with:
    ```
    pip-compile requirements.in
