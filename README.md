@@ -1,5 +1,7 @@
 # checkrs
 
+![Tests](https://github.com/timothyb0912/checkrs/workflows/Tests/badge.svg)
+
 Tools for simulation-based model checking.
 
 ## Description
@@ -14,18 +16,41 @@ Beyond the plots described in this paper, checkrs enables the creation of reliab
 As for the name, checkrs is a play on the word "checkers," i.e., those tools one uses to check, or one who checks.
 The name is also a play on the phrases "check the research of scientists" and "check research scientists."
 
-## Usage Installation
+## Installation
 
 `pip install checkrs`
 
+## Usage
+Note that `example_project` is fictitious! This example is, literally, just an example.
+```
+from checkrs import ChartData, ViewSimCDF
+
+from example_project import load_data
+
+design, targets_observed, targets_simulated = load_data()
+
+chart_data = ChartData.from_raw(
+  targets=targets_observed,  # 1D Ndarray or Tensor
+  targets_simulated=targets_simulated, # 2D Ndarray or Tensor
+  design=design # DataFrame or None
+)
+
+chart = ViewSimCDF.from_chart_data(chart_data)
+
+chart_plotnine = chart.draw(backend="plotnine")
+chart_altair = chart.draw(backend="altair")
+
+####
+## Save to a variety of formats
+####
+# chart.save("temp_plot.png")
+# chart.save("temp_plot.pdf")
+# chart.save("temp_plot.json")
+# chart.save("temp_plot.html")
+```
+See docstrings for `ChartData.from_raw`, `ViewSimCDF.from_chart_data`, and `ViewSimCDF.save`.
+
 ## To-Do:
-   - Add usage examples
-   - Add tests
-   - Set up tox
-   - Set up pre-commit
-   - Set up continuous integration
-   - Refactor to remove pandas dependency
-   - Architecture overhaul to go from prototype to v1.
    - Add package to conda and conda-forge
 
 ## Development installation
@@ -35,7 +60,7 @@ To work on and edit checkrs, the following setup process may be useful.
 1. from the project root, create an environment `checkrs` with the help of [conda](https://docs.conda.io/en/latest/),
    ```
    cd checkrs
-   conda env create -f environment.yaml
+   conda env create -n checkrs -f environment.yml
    ```
 2. activate the new environment with
    ```
@@ -43,7 +68,7 @@ To work on and edit checkrs, the following setup process may be useful.
    ```
 3. install `checkrs` in an editable fashion using:
    ```
-   pip install -e .
+   flit install --pth-file
    ```
 
 Optional and needed only once after `git clone`:
@@ -55,39 +80,29 @@ Optional and needed only once after `git clone`:
    and checkout the configuration under `.pre-commit-config.yaml`.
    The `-n, --no-verify` flag of `git commit` can be used to deactivate pre-commit hooks temporarily.
 
-5. install [jupytext] git hooks to store notebooks as formatted python files:
-   ```
-   #!/bin/sh
-   # For every ipynb file in the git index:
-   # - apply black and flake8
-   # - export the notebook to a Python script in folder 'python'
-   # - and add it to the git index
-   jupytext --from ipynb --pipe black --check flake8 --pre-commit
-   jupytext --from ipynb --to py:light --pre-commit
-   ```
-   This is useful to avoid large diffs due to plots in your notebooks.
-
 Then take a look into the `scripts` and `notebooks` folders.
 
 ## Dependency Management & Reproducibility
 
-1. Always keep your abstract (unpinned) dependencies updated in `environment.yaml`, `requirements.in`, and eventually
-in `setup.cfg` and  if you want to ship and install your package via `pip` later on.
-2. Create concrete dependencies as `environment.lock.yaml` and `requirements.txt` for the exact reproduction of your
-   environment with:
+1. Always keep your abstract (unpinned) dependencies updated in `environment.yml`, `requirements.in`, and eventually in `pyproject.toml` if you want to ship and install the package via `pip` later on.
+
+   - Use `environment.yml` for dependencies that cannot be installed via `pip`.
+   - Use `requirements.in` for dependencies that can be installed via `pip`.
+   - Use `pyproject.toml` for dependencies that are needed for `checkrs` to function at all, not just in development.
+2. Create concrete dependencies as `requirements.txt` for the exact reproduction of your environment with:
    ```
    pip-compile requirements.in
-   conda env export -n checkrs -f environment.lock.yaml
    ```
-   For multi-OS development, consider using `--no-builds` during the export.
-3. Update your current environment with respect to a new `environment.lock.yaml` using:
+3. Manually update any non-pip dependencies in `environment.yml`, being sure to pin any such dependencies to a specific version.
+4. Update your current environment using:
    ```
-   conda env update -f environment.lock.yaml --prune
+   conda env update -f environment.yml
    ```
    Or
    ```
    pip install -r requirements.txt
    ```
+   if you did not update any non-pip dependencies.
 
 ## Project Organization
 

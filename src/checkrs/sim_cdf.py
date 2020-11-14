@@ -4,18 +4,28 @@ Functions for plotting simulated vs observed cumulative distribution functions.
 """
 from __future__ import absolute_import
 
+import os
+from typing import (
+    Dict, Iterable, List, Optional
+)
+
+import altair as alt
+import attr
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import plotnine as p9
 import seaborn as sbn
 
-from .plot_utils import (
+import checkrs.base as base
+from checkrs.plot_utils import (
     _choice_evaluator,
     _label_despine_save_and_show_plot,
     _plot_single_cdf_on_axis,
     _thin_rows,
 )
-from .utils import progress
+from checkrs.utils import progress
 
 try:
     # in Python 3 range returns an iterator instead of list
@@ -263,3 +273,234 @@ def plot_simulated_cdfs(
         dpi=dpi,
     )
     return None
+
+
+@attr.s
+class ViewSimCDF(base.View):
+    _data: pd.DataFrame = attr.ib()
+    _url: str = attr.ib()
+    _metadata: Dict[str, str] = attr.ib()
+    theme : base.PlotTheme = attr.ib()
+
+    def set_plotting_col(self, column: str) -> bool:
+        """
+        Raises ValueError if `column` not in `data`.
+        """
+        if not isinstance(column, str):
+            msg = "`column` MUST be a string."
+            raise TypeError(column)
+        if column not in self._data.columns:
+            msg = "`column` not in `data.columns`"
+            raise ValueError(msg)
+        self.theme.plotting_col = column
+        return True
+
+    @classmethod
+    def from_chart_data(cls, data: base.ChartData) -> "ViewSimCDF":
+        """
+        Instantiates the simulated CDF chart from the given `ChartData`.
+        """
+        return cls(
+            data=data.data,
+            url=data.url,
+            metadata=data.metadata,
+            theme=base.PlotTheme(
+                label_y="Cumulative\nDistribution\nFunction",
+                plotting_col=data.metadata["target"],
+            ),
+        )
+
+    def draw(self, backend: str) -> base.ViewObject:
+        """
+        Specifies the view of the data using `backend`.
+        """
+        if backend == "plotnine":
+            return self.draw_plotnine()
+        elif backend == "altair":
+            return self.draw_altair()
+        else:
+            raise ValueError("`backend` MUST == 'plotnine'.")
+
+    def _get_sim_ids(self) -> List[int]:
+        # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
+        # Hopefully its the observed line
+        sim_ids = np.sort(
+            self._data[self._metadata["id_sim"]].unique()
+        ).tolist()[::-1]
+        return sim_ids
+
+    def draw_plotnine(self) -> p9.ggplot:
+        """
+        Specifies the plot using plotnine.
+        """
+        sim_ids = self._get_sim_ids()
+
+        # Add the data to the plot
+        chart = p9.ggplot()
+        for idx in progress(sim_ids):
+            chart = chart + self.create_single_cdf_line_plotnine(idx)
+
+        # Format the plot
+        chart = self.format_view_plotnine(chart)
+        return chart
+
+    def create_single_cdf_line_plotnine(self, id_sim: int) -> p9.ggplot:
+        """
+        Specifies a singe CDF line on the plot using plotnine.
+        """
+        id_col_sim = self._metadata["id_sim"]
+        observed_col = self._metadata["observed"]
+        return p9.stat_ecdf(
+                mapping=p9.aes(
+                    x=self.theme.plotting_col,
+                    color=observed_col,
+                    alpha=observed_col,
+                ),
+                data=self._data.loc[self._data[id_col_sim] == id_sim],
+            )
+
+    def draw_altair(self) -> alt.TopLevelMixin:
+        """
+        Specifies the plot through Altair.
+        """
+        sim_ids = self._get_sim_ids()
+
+        # Add the data to the plot
+        chart = self.create_single_cdf_line_altair(sim_ids[0])
+        for idx in progress(sim_ids[1:]):
+            chart += self.create_single_cdf_line_altair(idx)
+
+        # Format the plot
+        chart = self.format_view_altair(chart)
+        return chart
+
+    def create_single_cdf_line_altair(self, id_sim: int) -> alt.TopLevelMixin:
+        """
+        Specifies a singe CDF line on the plot using Altair.
+        """
+        # Get data and metadata
+        current_data = self._url if self._url is not None else self._data
+        id_col_sim = self._metadata["id_sim"]
+        observed_col = self._metadata["observed"]
+
+        # Declare mappings of data to x-axes, y-axes, color and opacity
+        observed_domain = [True, False]
+        color_range = [self.theme.color_observed, self.theme.color_simulated]
+        opacity_range = [1, 0.5]
+
+        encoding_x = alt.X(
+            self.theme.plotting_col,
+            type="quantitative",
+            title=self.theme.label_x,
+        )
+        encoding_y = alt.Y(
+            "density", type="quantitative", title=self.theme.label_y,
+        )
+        encoding_color = alt.Color(
+            observed_col,
+            type="nominal",
+            scale=alt.Scale(domain=observed_domain, range=color_range,),
+        )
+        encoding_opacity = alt.Opacity(
+            observed_col,
+            type="nominal",
+            scale=alt.Scale(domain=observed_domain, range=opacity_range,),
+        )
+
+        # Create the single cdf chart by filtering, transforming, and encoding
+        # data to the lines on the plot.
+        chart = (
+            alt.Chart(current_data)
+                .transform_filter(alt.datum[id_col_sim] == id_sim)
+                .transform_density(
+                    self.theme.plotting_col,
+                    as_=[self.theme.plotting_col, "density"],
+                    groupby=[observed_col],
+                    cumulative=True,
+                    steps=25,
+                )
+                .mark_line()
+                .encode(
+                    encoding_x,
+                    encoding_y,
+                    encoding_color,
+                    encoding_opacity,
+                )
+        )
+        return chart
+
+    def format_view_plotnine(self, chart: p9.ggplot) -> p9.ggplot:
+        """
+        Apply chart formatting options from `self.theme`.
+        """
+        figure_size = (self.theme.width_inches, self.theme.height_inches)
+
+        chart = (
+            chart
+            + p9.theme(
+                axis_text=p9.element_text(size=self.theme.fontsize),
+                axis_title_y=p9.element_text(
+                    rotation=self.theme.rotation_y,
+                    margin={"r": self.theme.padding_y_plotnine, "units": "pt"},
+                ),
+                figure_size=figure_size,
+                dpi=self.theme.dpi_print,
+            )
+            + p9.xlab(self.theme.label_x)
+            + p9.ylab(self.theme.label_y)
+            + p9.scale_color_manual(
+                (self.theme.color_simulated, self.theme.color_observed),
+                labels=p9.utils.waiver()
+            )
+            + p9.scale_alpha_manual(
+                (0.5, 1),
+                labels=p9.utils.waiver()
+            )
+        )
+        if self.theme.title is not None:
+            chart = chart + p9.ggtitle(self.theme.title)
+        return chart
+
+    def format_view_altair(
+        self, chart: alt.TopLevelMixin
+    ) -> alt.TopLevelMixin:
+        """
+        Apply chart formatting options from `self.theme`.
+        """
+        chart = (
+            chart.configure_axisX(
+                labelFontSize=self.theme.fontsize,
+                labelAngle=self.theme.rotation_x_ticks,
+                titleFontSize=self.theme.fontsize,
+            ).configure_axisY(
+                labelFontSize=self.theme.fontsize,
+                titleFontSize=self.theme.fontsize,
+                titleAngle=self.theme.rotation_y,
+                titlePadding=self.theme.padding_y_altair,
+            ).properties(
+                width=self.theme.width_pixels,
+                height=self.theme.height_pixels,
+            )
+        )
+        if self.theme.title is not None:
+            chart = chart.properties(
+                width=self.theme.width_pixels,
+                height=self.theme.height_pixels,
+                title=self.theme.title,
+            ).configure_title(fontSize=self.theme.fontsize)
+        return chart
+
+    def save(self, filename: str) -> bool:
+        """
+        Saves the view of the data using the appropriate backend for the
+        filename's extension. Returns True if saving succeeded.
+        """
+        ext = os.path.splitext(filename)[1]
+        if ext not in base.EXTENSIONS:
+            raise ValueError(f"Format MUST be in {base.EXTENSIONS}")
+        if ext in base.EXTENSIONS_PLOTNINE:
+            chart = self.draw_plotnine()
+        elif ext in base.EXTENSIONS_ALTAIR:
+            chart = self.draw_altair()
+        chart.save(filename)
+        return True

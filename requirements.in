@@ -1,4 +1,5 @@
 altair
+altair-viewer
 attrs
 black
 bump2version
@@ -14,6 +15,7 @@ pandas
 pip-tools
 pipdeptree
 pipreqs
+plotnine
 pre-commit
 pydeps
 pydocstyle
@@ -26,6 +28,9 @@ reorder-python-imports
 scikit-learn
 seaborn
 statsmodels
+torch
+towncrier
+tox
 tqdm
 xenon
 watermark
