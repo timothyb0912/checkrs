@@ -57,3 +57,11 @@ envlist = py36, py37, py38
 deps = pytest >= 3.3.0
 commands = pytest
 """
+
+[tool.towncrier]
+package = "checkrs"
+package_dir = "src/"
+newsfile = "CHANGELOG.rst"
+title_format = "{name} {version} ({project_date})"
+wrap = true  # Wrap text to 79 characters
+all_bullets = true
