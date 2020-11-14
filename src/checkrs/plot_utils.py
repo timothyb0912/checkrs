@@ -4,6 +4,7 @@ Helper functions for plotting.
 import gc
 import sys
 
+import altair as alt
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.distributions as sm_dist

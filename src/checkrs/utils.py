@@ -11,7 +11,8 @@ import sys
 
 import numpy as np
 from scipy.stats import itemfreq
-from tqdm import tqdm, tqdm_notebook
+from tqdm import tqdm
+from tqdm.notebook import tqdm as tqdm_notebook
 
 
 def _is_kernel():
