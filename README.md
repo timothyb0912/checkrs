@@ -49,7 +49,6 @@ chart_altair = chart.draw(backend="altair")
 See docstrings for `ChartData.from_raw`, `ViewSimCDF.from_chart_data`, and `ViewSimCDF.save`.
 
 ## To-Do:
-   - Set up pre-commit
    - Add package to conda and conda-forge
 
 ## Development installation
