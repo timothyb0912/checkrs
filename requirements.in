@@ -28,6 +28,8 @@ reorder-python-imports
 scikit-learn
 seaborn
 statsmodels
+torch
+towncrier
 tox
 tqdm
 xenon
