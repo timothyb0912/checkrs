@@ -67,7 +67,7 @@ To work on and edit checkrs, the following setup process may be useful.
    ```
 3. install `checkrs` in an editable fashion using:
    ```
-   pip install -e .
+   flit install --pth-file
    ```
 
 Optional and needed only once after `git clone`:
@@ -83,23 +83,25 @@ Then take a look into the `scripts` and `notebooks` folders.
 
 ## Dependency Management & Reproducibility
 
-1. Always keep your abstract (unpinned) dependencies updated in `environment.yaml`, `requirements.in`, and eventually
-in `setup.cfg` and  if you want to ship and install your package via `pip` later on.
-2. Create concrete dependencies as `environment.lock.yaml` and `requirements.txt` for the exact reproduction of your
-   environment with:
+1. Always keep your abstract (unpinned) dependencies updated in `environment.yml`, `requirements.in`, and eventually in `pyproject.toml` if you want to ship and install the package via `pip` later on.
+
+   Use `environment.yml` for dependencies that cannot be installed via `pip`.
+   Use `requirements.in` for dependencies that can be installed via `pip`.
+   Use `pyproject.toml` for dependencies that are needed for `checkrs` to function at all, not just in development.
+2. Create concrete dependencies as `requirements.txt` for the exact reproduction of your environment with:
    ```
    pip-compile requirements.in
-   conda env export -n checkrs -f environment.lock.yaml
    ```
-   For multi-OS development, consider using `--no-builds` during the export.
-3. Update your current environment with respect to a new `environment.lock.yaml` using:
+3. Manually update any non-pip dependencies in `environment.yml`, being sure to pin any such dependencies to a specific version.
+3. Update your current environment using:
    ```
-   conda env update -f environment.lock.yaml --prune
+   conda env update -f environment.yml
    ```
    Or
    ```
    pip install -r requirements.txt
    ```
+   if you did not update any non-pip dependencies.
 
 ## Project Organization
 
