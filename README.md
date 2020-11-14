@@ -59,7 +59,7 @@ To work on and edit checkrs, the following setup process may be useful.
 1. from the project root, create an environment `checkrs` with the help of [conda](https://docs.conda.io/en/latest/),
    ```
    cd checkrs
-   conda env create -f environment.yaml
+   conda env create -n checkrs -f environment.yml
    ```
 2. activate the new environment with
    ```
@@ -78,18 +78,6 @@ Optional and needed only once after `git clone`:
    ```
    and checkout the configuration under `.pre-commit-config.yaml`.
    The `-n, --no-verify` flag of `git commit` can be used to deactivate pre-commit hooks temporarily.
-
-5. install [jupytext] git hooks to store notebooks as formatted python files:
-   ```
-   #!/bin/sh
-   # For every ipynb file in the git index:
-   # - apply black and flake8
-   # - export the notebook to a Python script in folder 'python'
-   # - and add it to the git index
-   jupytext --from ipynb --pipe black --check flake8 --pre-commit
-   jupytext --from ipynb --to py:light --pre-commit
-   ```
-   This is useful to avoid large diffs due to plots in your notebooks.
 
 Then take a look into the `scripts` and `notebooks` folders.
 
