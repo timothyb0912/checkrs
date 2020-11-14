@@ -14,18 +14,42 @@ Beyond the plots described in this paper, checkrs enables the creation of reliab
 As for the name, checkrs is a play on the word "checkers," i.e., those tools one uses to check, or one who checks.
 The name is also a play on the phrases "check the research of scientists" and "check research scientists."
 
-## Usage Installation
+## Installation
 
 `pip install checkrs`
 
+## Usage
+Note that `example_project` is fictitious! This example is, literally, just an example.
+```
+from checkrs import ChartData, ViewSimCDF
+
+from example_project import load_data
+
+design, targets_observed, targets_simulated = load_data()
+
+chart_data = ChartData.from_raw(
+  targets=targets_observed,  # 1D Ndarray or Tensor
+  targets_simulated=targets_simulated, # 2D Ndarray or Tensor
+  design=design # DataFrame or None
+)
+
+chart = ViewSimCDF.from_chart_data(chart_data)
+
+chart_plotnine = chart.draw(backend="plotnine")
+chart_altair = chart.draw(backend="altair")
+
+####
+## Save to a variety of formats
+####
+# chart.save("temp_plot.png")
+# chart.save("temp_plot.pdf")
+# chart.save("temp_plot.json")
+# chart.save("temp_plot.html")
+```
+See docstrings for `ChartData.from_raw`, `ViewSimCDF.from_chart_data`, and `ViewSimCDF.save`.
+
 ## To-Do:
-   - Add usage examples
-   - Add tests
-   - Set up tox
    - Set up pre-commit
-   - Set up continuous integration
-   - Refactor to remove pandas dependency
-   - Architecture overhaul to go from prototype to v1.
    - Add package to conda and conda-forge
 
 ## Development installation
