@@ -10,9 +10,6 @@ Checkrs 0.1.2 (2020-11-13)
 Features
 --------
 
-- Set up package development requirements files. (#1)
-- Moved project build instructions from setup.cfg to pyproject.toml.
-  Moved project publishing from pyscaffold to flit. (#6)
 - Added declarative plotting objects: ViewSimCDF, ChartData, and View. (#11)
 - Added tox for cross-version testing. (#14)
 - Updated README and added jupytext + {black, flake8} to pre-commit. (#16)
@@ -29,10 +26,24 @@ Bugfixes
 Misc
 ----
 
-- #12
+- Removed private method that is no longer needed. (#12)
 
 
-Version 0.1.0
-=============
+Checkrs 0.1.1 (2020-09-27)
+==========================
+
+Features
+--------
+
+- Moved project build instructions from setup.cfg to pyproject.toml.
+  Moved project publishing from pyscaffold to flit. (#6)
+
+
+Checkrs 0.1.0 (2020-09-27)
+==========================
+
+Features
+--------
 
 - Uploaded the initial package version to PyPI.
+- Set up package development requirements files. (#1)
