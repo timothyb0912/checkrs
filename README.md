@@ -1,5 +1,7 @@
 # checkrs
 
+![Tests](https://github.com/timothyb0912/checkrs/workflows/Tests/badge.svg)
+
 Tools for simulation-based model checking.
 
 ## Description
