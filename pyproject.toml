@@ -44,6 +44,9 @@ classifiers=[
     "License :: OSI Approved :: BSD License",
 ]
 
+[tool.flit.sdist]
+exclude = ["src/checkrs/newsfragments/"]
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]
