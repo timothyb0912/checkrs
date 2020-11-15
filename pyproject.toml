@@ -95,3 +95,13 @@ all_bullets = true
     directory = "security"
     name = "Patched vulnerabilities"
     showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "doc"
+    name = "Improved Documentation"
+    showcontent = true
+
+    [[tool.towncrier.type]]
+    directory = "trivial"
+    name = "Trivial/Internal Changes"
+    showcontent = true
