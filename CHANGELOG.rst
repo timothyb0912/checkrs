@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Checkrs 0.1.2 (2020-11-13)
 ==========================
 
-Features
---------
+Added new features
+------------------
 
 - Added declarative plotting objects: ViewSimCDF, ChartData, and View. (#11)
 - Added tox for cross-version testing. (#14)
@@ -20,14 +20,14 @@ Features
 - Added README badge for Github-Actions Tests workflow. (#21)
 
 
-Bugfixes
---------
+Bug fixes
+---------
 
 - Fixed incorrect package requirements in pyproject.toml. (#11)
 
 
-Misc
-----
+Removed from package
+--------------------
 
 - Removed private method that is no longer needed. (#12)
 
@@ -35,8 +35,8 @@ Misc
 Checkrs 0.1.1 (2020-09-27)
 ==========================
 
-Features
---------
+Added new features
+------------------
 
 - Moved project build instructions from setup.cfg to pyproject.toml.
   Moved project publishing from pyscaffold to flit. (#6)
@@ -45,8 +45,8 @@ Features
 Checkrs 0.1.0 (2020-09-27)
 ==========================
 
-Features
---------
+Added new features
+------------------
 
 - Uploaded the initial package version to PyPI.
 - Set up package development requirements files. (#1)
