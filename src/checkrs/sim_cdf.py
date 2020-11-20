@@ -5,26 +5,24 @@ Functions for plotting simulated vs observed cumulative distribution functions.
 from __future__ import absolute_import
 
 import os
-from typing import (
-    Dict, Iterable, List, Optional
-)
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
 
 import altair as alt
 import attr
+import checkrs.base as base
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotnine as p9
 import seaborn as sbn
-
-import checkrs.base as base
-from checkrs.plot_utils import (
-    _choice_evaluator,
-    _label_despine_save_and_show_plot,
-    _plot_single_cdf_on_axis,
-    _thin_rows,
-)
+from checkrs.plot_utils import _choice_evaluator
+from checkrs.plot_utils import _label_despine_save_and_show_plot
+from checkrs.plot_utils import _plot_single_cdf_on_axis
+from checkrs.plot_utils import _thin_rows
 from checkrs.utils import progress
 
 try:
@@ -169,17 +167,13 @@ def plot_simulated_cdfs(
         filtered_sim_y = filtered_sim_y[selected_rows, :]
         filtered_orig_df = filtered_orig_df.iloc[selected_rows, :]
 
-    sample_iterator = progress(
-        range(filtered_sim_y.shape[1]), desc="Calculating CDFs"
-    )
+    sample_iterator = progress(range(filtered_sim_y.shape[1]), desc="Calculating CDFs")
 
     # Get the original values
     orig_choices = filtered_orig_df[choice_col].values
 
     orig_plotting_idx = _choice_evaluator(orig_choices, choice_condition)
-    orig_plotting_vals = filtered_orig_df.loc[
-        orig_plotting_idx, col_to_plot
-    ].values
+    orig_plotting_vals = filtered_orig_df.loc[orig_plotting_idx, col_to_plot].values
 
     if fig_and_ax is None:
         fig, axis = plt.subplots(1, figsize=figsize)
@@ -204,9 +198,7 @@ def plot_simulated_cdfs(
             continue
 
         # Get the values for plotting
-        current_plotting_vals = filtered_orig_df.loc[
-            plotting_idx, col_to_plot
-        ].values
+        current_plotting_vals = filtered_orig_df.loc[plotting_idx, col_to_plot].values
 
         # Update the plot extents
         min_x = min(current_plotting_vals.min(), min_x)
@@ -246,9 +238,7 @@ def plot_simulated_cdfs(
         current_handles.append(_patch)
         current_labels.append(label)
 
-        axis.legend(
-            current_handles, current_labels, loc="best", fontsize=fontsize
-        )
+        axis.legend(current_handles, current_labels, loc="best", fontsize=fontsize)
 
     # set the plot extents
     if xlim is None:
@@ -277,10 +267,10 @@ def plot_simulated_cdfs(
 
 @attr.s
 class ViewSimCDF(base.View):
-    _data: pd.DataFrame = attr.ib()
+    data: pd.DataFrame = attr.ib()
     _url: str = attr.ib()
     _metadata: Dict[str, str] = attr.ib()
-    theme : base.PlotTheme = attr.ib()
+    theme: base.PlotTheme = attr.ib()
 
     def set_plotting_col(self, column: str) -> bool:
         """
@@ -289,7 +279,7 @@ class ViewSimCDF(base.View):
         if not isinstance(column, str):
             msg = "`column` MUST be a string."
             raise TypeError(column)
-        if column not in self._data.columns:
+        if column not in self.data.columns:
             msg = "`column` not in `data.columns`"
             raise ValueError(msg)
         self.theme.plotting_col = column
@@ -324,9 +314,7 @@ class ViewSimCDF(base.View):
     def _get_sim_ids(self) -> List[int]:
         # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
         # Hopefully its the observed line
-        sim_ids = np.sort(
-            self._data[self._metadata["id_sim"]].unique()
-        ).tolist()[::-1]
+        sim_ids = np.sort(self.data[self._metadata["id_sim"]].unique()).tolist()[::-1]
         return sim_ids
 
     def draw_plotnine(self) -> p9.ggplot:
@@ -351,13 +339,13 @@ class ViewSimCDF(base.View):
         id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
         return p9.stat_ecdf(
-                mapping=p9.aes(
-                    x=self.theme.plotting_col,
-                    color=observed_col,
-                    alpha=observed_col,
-                ),
-                data=self._data.loc[self._data[id_col_sim] == id_sim],
-            )
+            mapping=p9.aes(
+                x=self.theme.plotting_col,
+                color=observed_col,
+                alpha=observed_col,
+            ),
+            data=self.data.loc[self.data[id_col_sim] == id_sim],
+        )
 
     def draw_altair(self) -> alt.TopLevelMixin:
         """
@@ -379,7 +367,7 @@ class ViewSimCDF(base.View):
         Specifies a singe CDF line on the plot using Altair.
         """
         # Get data and metadata
-        current_data = self._url if self._url is not None else self._data
+        current_data = self._url if self._url is not None else self.data
         id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
 
@@ -394,38 +382,46 @@ class ViewSimCDF(base.View):
             title=self.theme.label_x,
         )
         encoding_y = alt.Y(
-            "density", type="quantitative", title=self.theme.label_y,
+            "density",
+            type="quantitative",
+            title=self.theme.label_y,
         )
         encoding_color = alt.Color(
             observed_col,
             type="nominal",
-            scale=alt.Scale(domain=observed_domain, range=color_range,),
+            scale=alt.Scale(
+                domain=observed_domain,
+                range=color_range,
+            ),
         )
         encoding_opacity = alt.Opacity(
             observed_col,
             type="nominal",
-            scale=alt.Scale(domain=observed_domain, range=opacity_range,),
+            scale=alt.Scale(
+                domain=observed_domain,
+                range=opacity_range,
+            ),
         )
 
         # Create the single cdf chart by filtering, transforming, and encoding
         # data to the lines on the plot.
         chart = (
             alt.Chart(current_data)
-                .transform_filter(alt.datum[id_col_sim] == id_sim)
-                .transform_density(
-                    self.theme.plotting_col,
-                    as_=[self.theme.plotting_col, "density"],
-                    groupby=[observed_col],
-                    cumulative=True,
-                    steps=25,
-                )
-                .mark_line()
-                .encode(
-                    encoding_x,
-                    encoding_y,
-                    encoding_color,
-                    encoding_opacity,
-                )
+            .transform_filter(alt.datum[id_col_sim] == id_sim)
+            .transform_density(
+                self.theme.plotting_col,
+                as_=[self.theme.plotting_col, "density"],
+                groupby=[observed_col],
+                cumulative=True,
+                steps=25,
+            )
+            .mark_line()
+            .encode(
+                encoding_x,
+                encoding_y,
+                encoding_color,
+                encoding_opacity,
+            )
         )
         return chart
 
@@ -450,20 +446,15 @@ class ViewSimCDF(base.View):
             + p9.ylab(self.theme.label_y)
             + p9.scale_color_manual(
                 (self.theme.color_simulated, self.theme.color_observed),
-                labels=p9.utils.waiver()
+                labels=p9.utils.waiver(),
             )
-            + p9.scale_alpha_manual(
-                (0.5, 1),
-                labels=p9.utils.waiver()
-            )
+            + p9.scale_alpha_manual((0.5, 1), labels=p9.utils.waiver())
         )
         if self.theme.title is not None:
             chart = chart + p9.ggtitle(self.theme.title)
         return chart
 
-    def format_view_altair(
-        self, chart: alt.TopLevelMixin
-    ) -> alt.TopLevelMixin:
+    def format_view_altair(self, chart: alt.TopLevelMixin) -> alt.TopLevelMixin:
         """
         Apply chart formatting options from `self.theme`.
         """
@@ -472,12 +463,14 @@ class ViewSimCDF(base.View):
                 labelFontSize=self.theme.fontsize,
                 labelAngle=self.theme.rotation_x_ticks,
                 titleFontSize=self.theme.fontsize,
-            ).configure_axisY(
+            )
+            .configure_axisY(
                 labelFontSize=self.theme.fontsize,
                 titleFontSize=self.theme.fontsize,
                 titleAngle=self.theme.rotation_y,
                 titlePadding=self.theme.padding_y_altair,
-            ).properties(
+            )
+            .properties(
                 width=self.theme.width_pixels,
                 height=self.theme.height_pixels,
             )
