@@ -314,7 +314,9 @@ class ViewSimCDF(base.View):
     def _get_sim_ids(self) -> List[int]:
         # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
         # Hopefully its the observed line
-        sim_ids = np.sort(self.data[self._metadata["id_sim"]].unique()).tolist()[::-1]
+        sim_ids = np.sort(
+            self.data[self._metadata["id_sim"]].unique()
+        ).tolist()[::-1]
         return sim_ids
 
     def draw_plotnine(self) -> p9.ggplot:
@@ -339,13 +341,13 @@ class ViewSimCDF(base.View):
         id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
         return p9.stat_ecdf(
-            mapping=p9.aes(
-                x=self.theme.plotting_col,
-                color=observed_col,
-                alpha=observed_col,
-            ),
-            data=self.data.loc[self.data[id_col_sim] == id_sim],
-        )
+                mapping=p9.aes(
+                    x=self.theme.plotting_col,
+                    color=observed_col,
+                    alpha=observed_col,
+                ),
+                data=self.data.loc[self.data[id_col_sim] == id_sim],
+            )
 
     def draw_altair(self) -> alt.TopLevelMixin:
         """

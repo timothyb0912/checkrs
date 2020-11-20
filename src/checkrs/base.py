@@ -254,7 +254,6 @@ class View(Protocol):
     """
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
-
     data: ChartData
     theme: PlotTheme
 
