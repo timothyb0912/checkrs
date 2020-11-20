@@ -20,4 +20,4 @@ from .utils import is_categorical  # noqa: F401
 from .utils import progress  # noqa: F401
 from .utils import simulate_choice_vector  # noqa: F401
 
-__version__ = "0.1.2"
+__version__ = "0.2.0"

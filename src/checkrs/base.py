@@ -1,19 +1,18 @@
 """
 Basic objects that serve as templates for specialized functions and classes.
 """
-from typing import (
-    Dict, Optional, Union
-)
-from typing_extensions import Protocol
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 import attr
 import numpy as np
 import pandas as pd
 import torch
-from plotnine import ggplot
 from altair import TopLevelMixin
-
 from checkrs.utils import progress
+from plotnine import ggplot
+from typing_extensions import Protocol
 
 
 EXTENSIONS_PLOTNINE = set((".png", ".pdf"))
@@ -43,6 +42,7 @@ class ChartData:
         columns should denote whether the data was observed or simulated, the
         id of the simulation, and the outcome values.
     """
+
     data: Optional[pd.DataFrame] = attr.ib()
     url: Optional[str] = attr.ib()
     metadata: Dict[str, str] = attr.ib()
@@ -62,12 +62,8 @@ class ChartData:
         self._check_metadata("metadata", self.metadata)
         # Check columns
         id_col_sim = self.metadata["id_sim"]
-        needed_cols = [
-            id_col_sim, self.metadata["observed"], self.metadata["target"]
-        ]
-        has_needed_cols = all(
-            (column in self.data.columns for column in needed_cols)
-        )
+        needed_cols = [id_col_sim, self.metadata["observed"], self.metadata["target"]]
+        has_needed_cols = all((column in self.data.columns for column in needed_cols))
         if not has_needed_cols:
             msg = f"`data.columns` MUST contain:\n{needed_cols}"
             raise ValueError(msg)
@@ -80,9 +76,7 @@ class ChartData:
         shape = {}
         id_col_sim = self.metadata["id_sim"]
         for idx in self.data[id_col_sim].unique():
-            current_shape = self.data.loc[
-                self.data[id_col_sim] == idx
-            ].shape[0]
+            current_shape = self.data.loc[self.data[id_col_sim] == idx].shape[0]
             orig_shape = shape.get("value", current_shape)
             shape["value"] = current_shape
             if current_shape != orig_shape:
@@ -114,9 +108,7 @@ class ChartData:
             msg = f"`metadata` MUST contain the following:\n{needed_aliases}"
             raise ValueError(msg)
 
-        aliases_are_all_str = all(
-            (isinstance(alias, str) for alias in needed_aliases)
-        )
+        aliases_are_all_str = all((isinstance(alias, str) for alias in needed_aliases))
         if not aliases_are_all_str:
             msg = (
                 "Each of the following must map to a `str` in `metadata`\n"
@@ -137,12 +129,14 @@ class ChartData:
         cls,
         tidy_df: pd.DataFrame,
         new_y: np.ndarray,
-        x: Optional[pd.DataFrame]=None,
-        observed: bool=False
+        x: Optional[pd.DataFrame] = None,
+        observed: bool = False,
     ) -> pd.DataFrame:
-        to_add = pd.DataFrame({
-            "target": new_y,
-        })
+        to_add = pd.DataFrame(
+            {
+                "target": new_y,
+            }
+        )
         to_add["observed"] = observed
         to_add["id_sim"] = cls._get_id_sim(tidy_df) + 1
 
@@ -158,11 +152,10 @@ class ChartData:
         targets_simulated: TensOrArray,
         design: Optional[pd.DataFrame] = None,
     ) -> pd.DataFrame:
-        targets_np = (
-            targets if isinstance(targets, np.ndarray) else targets.numpy()
-        )
+        targets_np = targets if isinstance(targets, np.ndarray) else targets.numpy()
         targets_simulated_np = (
-            targets_simulated if isinstance(targets_simulated, np.ndarray)
+            targets_simulated
+            if isinstance(targets_simulated, np.ndarray)
             else targets_simulated.numpy()
         )
 
@@ -172,10 +165,7 @@ class ChartData:
         )
         for col in progress(range(targets_simulated_np.shape[1])):
             tidy_df = cls._add_dataset_to_tidy_df(
-                tidy_df,
-                new_y=targets_simulated_np[:, col],
-                x=design,
-                observed=False
+                tidy_df, new_y=targets_simulated_np[:, col], x=design, observed=False
             )
         tidy_df.id_sim = tidy_df.id_sim.astype(int)
         return tidy_df
@@ -213,9 +203,7 @@ class ChartData:
         -------
         Instantiated ChartData object.
         """
-        tidy_df = cls._make_tidy_df_from_raw(
-            targets, targets_simulated, design
-        )
+        tidy_df = cls._make_tidy_df_from_raw(targets, targets_simulated, design)
 
         metadata = {
             "target": "target",
@@ -230,27 +218,26 @@ class PlotTheme:
     """
     Default attributes for a plot
     """
-    label_y : str = attr.ib()
-    plotting_col : str = attr.ib(default="target")
-    _label_x : Optional[str] = attr.ib(default=None)
-    title : Optional[str] = attr.ib(default=None)
-    rotation_y : int = attr.ib(default=0)
-    rotation_x_ticks : int = attr.ib(default=0)
-    padding_y_plotnine : int = attr.ib(default=40)
-    padding_y_altair : int = attr.ib(default=100)
-    dpi_print : int = attr.ib(default=500)
-    dpi_web : int = attr.ib(default=72)
-    fontsize : int = attr.ib(default=13)
-    color_observed : str = attr.ib(default="#045a8d")
-    color_simulated : str = attr.ib(default="#a6bddb")
-    width_inches : int = attr.ib(default=5)
-    height_inches : int = attr.ib(default=3)
+
+    label_y: str = attr.ib()
+    plotting_col: str = attr.ib(default="target")
+    _label_x: Optional[str] = attr.ib(default=None)
+    title: Optional[str] = attr.ib(default=None)
+    rotation_y: int = attr.ib(default=0)
+    rotation_x_ticks: int = attr.ib(default=0)
+    padding_y_plotnine: int = attr.ib(default=40)
+    padding_y_altair: int = attr.ib(default=100)
+    dpi_print: int = attr.ib(default=500)
+    dpi_web: int = attr.ib(default=72)
+    fontsize: int = attr.ib(default=13)
+    color_observed: str = attr.ib(default="#045a8d")
+    color_simulated: str = attr.ib(default="#a6bddb")
+    width_inches: int = attr.ib(default=5)
+    height_inches: int = attr.ib(default=3)
 
     @property
     def label_x(self) -> str:
-        label = (
-            self._label_x if self._label_x is not None else self.plotting_col
-        )
+        label = self._label_x if self._label_x is not None else self.plotting_col
         return label
 
     @property
@@ -267,7 +254,8 @@ class View(Protocol):
     """
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
-    theme : PlotTheme
+    data: ChartData
+    theme: PlotTheme
 
     @classmethod
     def from_chart_data(cls, data: ChartData) -> "View":

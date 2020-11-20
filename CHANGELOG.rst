@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 .. towncrier release notes start
 
+Checkrs 0.2.0 (2020-11-19)
+==========================
+
+Added new features
+------------------
+
+- Exposed data attribute on View objects. (#40)
+
+
+Changed existing functionality
+------------------------------
+
+- Implemented keepachangelog format for CHANGELOG.rst (#37)
+
+
+Bug fixes
+---------
+
+- Removed incorrect requirements.txt flag. (#43)
+
+
 Checkrs 0.1.2 (2020-11-13)
 ==========================
 
