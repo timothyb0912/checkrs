@@ -277,7 +277,7 @@ def plot_simulated_cdfs(
 
 @attr.s
 class ViewSimCDF(base.View):
-    _data: pd.DataFrame = attr.ib()
+    data: pd.DataFrame = attr.ib()
     _url: str = attr.ib()
     _metadata: Dict[str, str] = attr.ib()
     theme : base.PlotTheme = attr.ib()
@@ -289,7 +289,7 @@ class ViewSimCDF(base.View):
         if not isinstance(column, str):
             msg = "`column` MUST be a string."
             raise TypeError(column)
-        if column not in self._data.columns:
+        if column not in self.data.columns:
             msg = "`column` not in `data.columns`"
             raise ValueError(msg)
         self.theme.plotting_col = column
@@ -325,7 +325,7 @@ class ViewSimCDF(base.View):
         # Note [::-1] puts id_sim = 1 on top (id_sim = 1 is last).
         # Hopefully its the observed line
         sim_ids = np.sort(
-            self._data[self._metadata["id_sim"]].unique()
+            self.data[self._metadata["id_sim"]].unique()
         ).tolist()[::-1]
         return sim_ids
 
@@ -356,7 +356,7 @@ class ViewSimCDF(base.View):
                     color=observed_col,
                     alpha=observed_col,
                 ),
-                data=self._data.loc[self._data[id_col_sim] == id_sim],
+                data=self.data.loc[self.data[id_col_sim] == id_sim],
             )
 
     def draw_altair(self) -> alt.TopLevelMixin:
@@ -379,7 +379,7 @@ class ViewSimCDF(base.View):
         Specifies a singe CDF line on the plot using Altair.
         """
         # Get data and metadata
-        current_data = self._url if self._url is not None else self._data
+        current_data = self._url if self._url is not None else self.data
         id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
 
