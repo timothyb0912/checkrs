@@ -9,7 +9,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
 from checkrs import ChartData
 from checkrs import View
 from checkrs import ViewSimCDF
@@ -22,6 +21,7 @@ class ProtocolTests(unittest.TestCase):
     Testing basic properties of a Checkrs.Chart instance.
     Are the signatures correct?
     """
+
     temp_dir = "_tmp/"
     charts_all: List[View] = [ViewSimCDF]
     backends: List[str] = [
@@ -40,8 +40,8 @@ class ProtocolTests(unittest.TestCase):
         np.random.seed(324)
         y_all = np.random.rand(100, 10)
         dataframes = []
-        for i in range(1, y_all.shape[1]+1):
-            current_data = pd.DataFrame({"target": y_all[:, i-1]})
+        for i in range(1, y_all.shape[1] + 1):
+            current_data = pd.DataFrame({"target": y_all[:, i - 1]})
             current_data["observed"] = True if i == 1 else False
             current_data["id_sim"] = i
             dataframes.append(current_data)

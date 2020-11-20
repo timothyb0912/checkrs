@@ -10,7 +10,9 @@ import numpy as np
 import seaborn as sbn
 
 from .plot_utils import _label_despine_save_and_show_plot
-from .smoothers import ContinuousSmoother, DiscreteSmoother, SmoothPlotter
+from .smoothers import ContinuousSmoother
+from .smoothers import DiscreteSmoother
+from .smoothers import SmoothPlotter
 from .utils import progress
 
 try:

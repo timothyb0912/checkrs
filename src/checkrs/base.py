@@ -62,8 +62,14 @@ class ChartData:
         self._check_metadata("metadata", self.metadata)
         # Check columns
         id_col_sim = self.metadata["id_sim"]
-        needed_cols = [id_col_sim, self.metadata["observed"], self.metadata["target"]]
-        has_needed_cols = all((column in self.data.columns for column in needed_cols))
+        needed_cols = [
+            id_col_sim,
+            self.metadata["observed"],
+            self.metadata["target"],
+        ]
+        has_needed_cols = all(
+            (column in self.data.columns for column in needed_cols)
+        )
         if not has_needed_cols:
             msg = f"`data.columns` MUST contain:\n{needed_cols}"
             raise ValueError(msg)
@@ -76,7 +82,9 @@ class ChartData:
         shape = {}
         id_col_sim = self.metadata["id_sim"]
         for idx in self.data[id_col_sim].unique():
-            current_shape = self.data.loc[self.data[id_col_sim] == idx].shape[0]
+            current_shape = self.data.loc[self.data[id_col_sim] == idx].shape[
+                0
+            ]
             orig_shape = shape.get("value", current_shape)
             shape["value"] = current_shape
             if current_shape != orig_shape:
@@ -108,7 +116,9 @@ class ChartData:
             msg = f"`metadata` MUST contain the following:\n{needed_aliases}"
             raise ValueError(msg)
 
-        aliases_are_all_str = all((isinstance(alias, str) for alias in needed_aliases))
+        aliases_are_all_str = all(
+            (isinstance(alias, str) for alias in needed_aliases)
+        )
         if not aliases_are_all_str:
             msg = (
                 "Each of the following must map to a `str` in `metadata`\n"
@@ -152,7 +162,9 @@ class ChartData:
         targets_simulated: TensOrArray,
         design: Optional[pd.DataFrame] = None,
     ) -> pd.DataFrame:
-        targets_np = targets if isinstance(targets, np.ndarray) else targets.numpy()
+        targets_np = (
+            targets if isinstance(targets, np.ndarray) else targets.numpy()
+        )
         targets_simulated_np = (
             targets_simulated
             if isinstance(targets_simulated, np.ndarray)
@@ -165,7 +177,10 @@ class ChartData:
         )
         for col in progress(range(targets_simulated_np.shape[1])):
             tidy_df = cls._add_dataset_to_tidy_df(
-                tidy_df, new_y=targets_simulated_np[:, col], x=design, observed=False
+                tidy_df,
+                new_y=targets_simulated_np[:, col],
+                x=design,
+                observed=False,
             )
         tidy_df.id_sim = tidy_df.id_sim.astype(int)
         return tidy_df
@@ -203,7 +218,9 @@ class ChartData:
         -------
         Instantiated ChartData object.
         """
-        tidy_df = cls._make_tidy_df_from_raw(targets, targets_simulated, design)
+        tidy_df = cls._make_tidy_df_from_raw(
+            targets, targets_simulated, design
+        )
 
         metadata = {
             "target": "target",
@@ -237,7 +254,9 @@ class PlotTheme:
 
     @property
     def label_x(self) -> str:
-        label = self._label_x if self._label_x is not None else self.plotting_col
+        label = (
+            self._label_x if self._label_x is not None else self.plotting_col
+        )
         return label
 
     @property
@@ -254,6 +273,7 @@ class View(Protocol):
     """
     Base class for Checkrs visualizations. Provides a view of one's data.
     """
+
     data: ChartData
     theme: PlotTheme
 

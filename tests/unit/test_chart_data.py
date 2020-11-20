@@ -2,14 +2,11 @@
 Test that the ChartData object is validated as expected.
 """
 import unittest
-from itertools import product
-from typing import Any, List
+from typing import Any
+from typing import List
 
-import altair as alt
 import numpy as np
 import pandas as pd
-import plotnine as p9
-
 from checkrs import ChartData
 
 
@@ -17,15 +14,16 @@ class ChartDataTests(unittest.TestCase):
     """
     Testing data validation and instantiation of ChartData.
     """
-    num_obs : int = 100
+
+    num_obs: int = 100
 
     @property
     def good_data(self) -> ChartData:
         np.random.seed(324)
         y_all = np.random.rand(self.num_obs, 10)
         dataframes = []
-        for i in range(1, y_all.shape[1]+1):
-            current_data = pd.DataFrame({"target": y_all[:, i-1]})
+        for i in range(1, y_all.shape[1] + 1):
+            current_data = pd.DataFrame({"target": y_all[:, i - 1]})
             current_data["observed"] = True if i == 1 else False
             current_data["id_sim"] = i
             dataframes.append(current_data)
@@ -59,9 +57,10 @@ class ChartDataTests(unittest.TestCase):
             None,
             dict(),
             {"target": "target", "observed": "observed"},
-            {"target": "target",
-             "simulated": "observed",
-             "id_sim": "id_sim",
+            {
+                "target": "target",
+                "simulated": "observed",
+                "id_sim": "id_sim",
             },
             {"target": "target", "observed": "observed", "id_sim": 1},
             {"target": "target", "observed": "observed", "id_sim": "foo"},
@@ -72,12 +71,7 @@ class ChartDataTests(unittest.TestCase):
         """
         Examples of invalid urls .
         """
-        gremlins = [
-            "",
-            "data.csv",
-            "data.jso",
-            100
-        ]
+        gremlins = ["", "data.csv", "data.jso", 100]
         return gremlins
 
     def _bad_data_data(self) -> List[Any]:
@@ -112,7 +106,7 @@ class ChartDataTests(unittest.TestCase):
                 ChartData,
                 data=good_data.data,
                 url=good_data.url,
-                metadata=metadata
+                metadata=metadata,
             )
 
     def test_url_errors(self):
@@ -126,7 +120,7 @@ class ChartDataTests(unittest.TestCase):
                 ChartData,
                 data=good_data.data,
                 url=url,
-                metadata=good_data.metadata
+                metadata=good_data.metadata,
             )
 
     def test_data_errors(self):
@@ -140,7 +134,7 @@ class ChartDataTests(unittest.TestCase):
                 ChartData,
                 data=data,
                 url=good_data.url,
-                metadata=good_data.metadata
+                metadata=good_data.metadata,
             )
 
     def test_from_raw(self):
@@ -153,10 +147,11 @@ class ChartDataTests(unittest.TestCase):
         y = y_all[:, 0]
         y_sim = y_all[:, 1:]
         x = pd.DataFrame(
-            {"x":
-                np.random.choice([0, 1], p=[0.5, 0.5], size=self.num_obs),
-             "x2":
-                np.random.choice([3, 4], p=[0.5, 0.5], size=self.num_obs),
+            {
+                "x": np.random.choice([0, 1], p=[0.5, 0.5], size=self.num_obs),
+                "x2": np.random.choice(
+                    [3, 4], p=[0.5, 0.5], size=self.num_obs
+                ),
             }
         )
 
@@ -172,6 +167,6 @@ class ChartDataTests(unittest.TestCase):
             self.assertEqual(data.url, url)
             self.assertEqual(
                 data.data[data.metadata["id_sim"]].unique().size,
-                num_simulations + 1
+                num_simulations + 1,
             )
             self.assertTrue(all(col in data.data.columns for col in x.columns))
