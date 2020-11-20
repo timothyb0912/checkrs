@@ -105,3 +105,23 @@ all_bullets = true
     directory = "trivial"
     name = "Trivial/Internal Changes"
     showcontent = true
+
+[tool.black]
+line-length = 79
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''

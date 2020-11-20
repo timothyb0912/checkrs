@@ -2,14 +2,12 @@
 Test that the SimCDF plot is performing as expected.
 """
 import unittest
-from itertools import product
 from typing import List
 
 import altair as alt
 import numpy as np
 import pandas as pd
 import plotnine as p9
-
 from checkrs import ChartData
 from checkrs import View
 from checkrs import ViewSimCDF
@@ -22,6 +20,7 @@ class ChartAttributeTests(unittest.TestCase):
     """
     Testing expected attributes of a SimCDF plot in altair and plotnine.
     """
+
     chart: View = ViewSimCDF
     backends: List[str] = [
         "altair",
@@ -39,8 +38,8 @@ class ChartAttributeTests(unittest.TestCase):
         np.random.seed(324)
         y_all = np.random.rand(100, 100)
         dataframes = []
-        for i in range(1, y_all.shape[1]+1):
-            current_data = pd.DataFrame({"target": y_all[:, i-1]})
+        for i in range(1, y_all.shape[1] + 1):
+            current_data = pd.DataFrame({"target": y_all[:, i - 1]})
             current_data["observed"] = True if i == 1 else False
             current_data["id_sim"] = i
             dataframes.append(current_data)
@@ -102,7 +101,8 @@ class ChartAttributeTests(unittest.TestCase):
             self.assertEqual(layer["mark"], "line")
             # The line should be formed by a cumulative density transform
             density_transforms = tuple(
-                transform for transform in layer["transform"]
+                transform
+                for transform in layer["transform"]
                 if "density" in transform
             )
             self.assertTrue(len(density_transforms) == 1)
@@ -119,11 +119,11 @@ class ChartAttributeTests(unittest.TestCase):
             # Make sure each layer a unique filtering of the data
             transforms = layer.get("transform", None)
             current_filtering = tuple(
-                transform for transform in transforms
-                if "filter" in transform
+                transform for transform in transforms if "filter" in transform
             )
             current_filtering = (
-                current_filtering[0]["filter"] if len(current_filtering) > 0
+                current_filtering[0]["filter"]
+                if len(current_filtering) > 0
                 else None
             )
             self.assertTrue(current_filtering not in filterings)
@@ -155,7 +155,7 @@ class ChartAttributeTests(unittest.TestCase):
         encodings = {
             "x": {"field": outcome_col},
             "y": {"field": "density"},
-            "color": {"field": observed_col}
+            "color": {"field": observed_col},
         }
         chart_dict = self.chart_altair.to_dict()
         for layer in chart_dict["layer"]:
@@ -181,13 +181,13 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data)
         encodings = {
             "x": {
-                    "field": chart.theme.plotting_col,
-                    "title": chart.theme.label_x,
-                },
+                "field": chart.theme.plotting_col,
+                "title": chart.theme.label_x,
+            },
             "y": {
-                    "field": "density",
-                    "title": chart.theme.label_y,
-                },
+                "field": "density",
+                "title": chart.theme.label_y,
+            },
         }
         chart_dict = self.chart_altair.to_dict()
         for layer in chart_dict["layer"]:
@@ -208,7 +208,10 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data)
         chart.theme.title = "A Fancy Title!"
         chart_dict = chart.draw(backend="altair").to_dict()
-        self.assertEqual(chart_dict["title"], chart.theme.title,)
+        self.assertEqual(
+            chart_dict["title"],
+            chart.theme.title,
+        )
 
     def test_chart_uses_plot_theme_title_plotnine(self):
         chart = self.chart.from_chart_data(self.data)
@@ -228,9 +231,9 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data)
         chart_plotnine = self.chart_p9
         self.assertEqual(
-            chart_plotnine.theme
-                .themeables["axis_title_y"]
-                .properties["rotation"],
+            chart_plotnine.theme.themeables["axis_title_y"].properties[
+                "rotation"
+            ],
             chart.theme.rotation_y,
         )
 
@@ -246,9 +249,9 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data)
         chart_plotnine = self.chart_p9
         self.assertEqual(
-            chart_plotnine.theme
-                .themeables["axis_title_y"]
-                .properties["margin"]["r"],
+            chart_plotnine.theme.themeables["axis_title_y"].properties[
+                "margin"
+            ]["r"],
             chart.theme.padding_y_plotnine,
         )
 
@@ -269,7 +272,10 @@ class ChartAttributeTests(unittest.TestCase):
     def test_chart_uses_plot_theme_colors_altair(self):
         chart = self.chart.from_chart_data(self.data)
         specified_colors = set(
-            (chart.theme.color_observed, chart.theme.color_simulated,)
+            (
+                chart.theme.color_observed,
+                chart.theme.color_simulated,
+            )
         )
 
         chart_dict = self.chart_altair.to_dict()
@@ -313,9 +319,7 @@ class ChartAttributeTests(unittest.TestCase):
         chart = self.chart.from_chart_data(self.data)
         chart_plotnine = self.chart_p9
         self.assertEqual(
-            chart_plotnine.theme
-                .themeables["axis_text"]
-                .properties["size"],
+            chart_plotnine.theme.themeables["axis_text"].properties["size"],
             chart.theme.fontsize,
         )
 
@@ -350,14 +354,8 @@ class ChartAttributeTests(unittest.TestCase):
         bad_plotting_columns_value = ["foo"]
         chart = self.chart.from_chart_data(self.data)
         for column in bad_plotting_columns_type:
-            self.assertRaises(
-                TypeError,
-                chart.set_plotting_col,
-                column=column
-            )
+            self.assertRaises(TypeError, chart.set_plotting_col, column=column)
         for column in bad_plotting_columns_value:
             self.assertRaises(
-                ValueError,
-                chart.set_plotting_col,
-                column=column
+                ValueError, chart.set_plotting_col, column=column
             )

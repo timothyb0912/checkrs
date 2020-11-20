@@ -4,13 +4,12 @@ Helper functions for plotting.
 import gc
 import sys
 
-import altair as alt
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.distributions as sm_dist
+import statsmodels.tools as sm_tools  # isort:skip
 
 # Use statsmodels for empirical cdf function
-import statsmodels.tools as sm_tools  # isort:skip
 
 # Alias the empirical cdf function. The if-statement is used for compatibility
 # with various statsmodels versions.

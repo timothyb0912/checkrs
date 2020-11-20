@@ -6,9 +6,7 @@ from __future__ import absolute_import
 
 import os
 from typing import Dict
-from typing import Iterable
 from typing import List
-from typing import Optional
 
 import altair as alt
 import attr
@@ -167,13 +165,17 @@ def plot_simulated_cdfs(
         filtered_sim_y = filtered_sim_y[selected_rows, :]
         filtered_orig_df = filtered_orig_df.iloc[selected_rows, :]
 
-    sample_iterator = progress(range(filtered_sim_y.shape[1]), desc="Calculating CDFs")
+    sample_iterator = progress(
+        range(filtered_sim_y.shape[1]), desc="Calculating CDFs"
+    )
 
     # Get the original values
     orig_choices = filtered_orig_df[choice_col].values
 
     orig_plotting_idx = _choice_evaluator(orig_choices, choice_condition)
-    orig_plotting_vals = filtered_orig_df.loc[orig_plotting_idx, col_to_plot].values
+    orig_plotting_vals = filtered_orig_df.loc[
+        orig_plotting_idx, col_to_plot
+    ].values
 
     if fig_and_ax is None:
         fig, axis = plt.subplots(1, figsize=figsize)
@@ -198,7 +200,9 @@ def plot_simulated_cdfs(
             continue
 
         # Get the values for plotting
-        current_plotting_vals = filtered_orig_df.loc[plotting_idx, col_to_plot].values
+        current_plotting_vals = filtered_orig_df.loc[
+            plotting_idx, col_to_plot
+        ].values
 
         # Update the plot extents
         min_x = min(current_plotting_vals.min(), min_x)
@@ -238,7 +242,9 @@ def plot_simulated_cdfs(
         current_handles.append(_patch)
         current_labels.append(label)
 
-        axis.legend(current_handles, current_labels, loc="best", fontsize=fontsize)
+        axis.legend(
+            current_handles, current_labels, loc="best", fontsize=fontsize
+        )
 
     # set the plot extents
     if xlim is None:
@@ -341,13 +347,13 @@ class ViewSimCDF(base.View):
         id_col_sim = self._metadata["id_sim"]
         observed_col = self._metadata["observed"]
         return p9.stat_ecdf(
-                mapping=p9.aes(
-                    x=self.theme.plotting_col,
-                    color=observed_col,
-                    alpha=observed_col,
-                ),
-                data=self.data.loc[self.data[id_col_sim] == id_sim],
-            )
+            mapping=p9.aes(
+                x=self.theme.plotting_col,
+                color=observed_col,
+                alpha=observed_col,
+            ),
+            data=self.data.loc[self.data[id_col_sim] == id_sim],
+        )
 
     def draw_altair(self) -> alt.TopLevelMixin:
         """
@@ -456,7 +462,9 @@ class ViewSimCDF(base.View):
             chart = chart + p9.ggtitle(self.theme.title)
         return chart
 
-    def format_view_altair(self, chart: alt.TopLevelMixin) -> alt.TopLevelMixin:
+    def format_view_altair(
+        self, chart: alt.TopLevelMixin
+    ) -> alt.TopLevelMixin:
         """
         Apply chart formatting options from `self.theme`.
         """

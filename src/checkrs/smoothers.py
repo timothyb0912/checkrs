@@ -5,12 +5,10 @@ continuous smooths of a binary or continuous variable against another
 continuous variable.
 """
 import numpy as np
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import ExtraTreesRegressor
 
 # Use ExtRaTrees for continuously smoothed marginal model plots
-from sklearn.ensemble import (  # isort:skip
-    ExtraTreesClassifier,
-    ExtraTreesRegressor,
-)
 
 try:
     # in Python 3 range returns an iterator instead of list
